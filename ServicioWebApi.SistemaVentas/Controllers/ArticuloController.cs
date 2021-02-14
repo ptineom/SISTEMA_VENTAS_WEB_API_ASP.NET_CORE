@@ -403,13 +403,10 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _resultado = await Task.Run(() => _brArticulo.listaArticulosGeneral(accion, _idSucursal, tipoFiltro, filtro, ref moneda));
 
             if (!_resultado.bResultado)
-            {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
-            }
+
             if (_resultado.data == null)
-            {
                 return NotFound(new { Message = "No se encontraron datos.", Status = "Error" });
-            }
 
             List<ARTICULO> lista = (List<ARTICULO>)_resultado.data;
 
