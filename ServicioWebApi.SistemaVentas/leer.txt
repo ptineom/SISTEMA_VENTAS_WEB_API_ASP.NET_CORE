@@ -1,0 +1,2 @@
+﻿jwt:
+1.- nugget Microsoft.AspNetCore.Authentication.JwtBearer
