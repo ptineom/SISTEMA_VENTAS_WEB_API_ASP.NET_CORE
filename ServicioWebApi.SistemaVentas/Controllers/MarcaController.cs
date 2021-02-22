@@ -2,6 +2,7 @@
 using Entidades;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ServicioWebApi.SistemaVentas.ViewModels;
 using SistemaVentas.WebApi.Seguridad;
 using SistemaVentas.WebApi.ViewModels.Seguridad;
 using System;
@@ -31,7 +32,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         }
 
         [HttpGet("listaMarca/{nomMarca}")]
-        public async Task<IActionResult> listaMarca(string nomMarca)
+        public async Task<IActionResult> listaMarcaAsync(string nomMarca)
         {
             _resultado = await Task.Run(() => _brMarca.listaMarcas(nomMarca));
 
@@ -51,13 +52,16 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         }
 
         [HttpPost("grabarMarca")]
-        public async Task<IActionResult> grabarMarca(MARCA oModelo)
+        public async Task<IActionResult> grabarMarcaAsync(RequestMarca modelo)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
 
-            oModelo.ID_USUARIO_REGISTRO = _idUsuario;
-            _resultado = await Task.Run(() => _brMarca.grabarMarca(oModelo));
+            _resultado = await Task.Run(() => _brMarca.grabarMarca(new MARCA(){
+                NOM_MARCA = modelo.nomMarca,
+                ID_USUARIO_REGISTRO = _idUsuario,
+                ACCION = "INS"
+            }));
 
             return Ok(_resultado);
         }

@@ -27,7 +27,7 @@ namespace CapaNegocio
                     con.Open();
                     var lista = dao.listaMarcas(con, nomMarca);
 
-                    oResultado.SetResultado(true, "", oResultado.data);
+                    oResultado.SetResultado(true, "", lista);
                 }
                 catch (Exception ex)
                 {
