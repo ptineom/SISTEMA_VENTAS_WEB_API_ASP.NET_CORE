@@ -3,7 +3,7 @@ using Entidades;
 using Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SistemaVentas.WebApi.Seguridad;
+using SistemaVentas.WebApi.Servicios.Seguridad;
 using SistemaVentas.WebApi.ViewModels.Seguridad;
 using SistemaVentas.WebApi.ViewModels.Venta;
 using System;
@@ -289,7 +289,8 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                     precioArticulo = x.PRECIO_ARTICULO,
                     precioUnitario = x.PRECIO_UNITARIO,
                     importe = x.IMPORTE,
-                    abreviado = x.ABREVIADO
+                    abreviado = x.ABREVIADO,
+                    codigo = string.IsNullOrEmpty(x.CODIGO_BARRA)? x.ID_ARTICULO: x.CODIGO_BARRA
                 }).ToList<object>()
             };
 

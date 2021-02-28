@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SistemaVentas.WebApi.Seguridad;
+using SistemaVentas.WebApi.Servicios.Seguridad;
 using SistemaVentas.WebApi.ViewModels;
 using SistemaVentas.WebApi.ViewModels.Seguridad;
 using System;
@@ -27,14 +27,15 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         private IConfiguration _configuration;
         private IWebHostEnvironment _environment;
         private IHttpContextAccessor _accessor;
-        public ArticuloController(IResultadoOperacion resultado, IConfiguration configuration, IWebHostEnvironment environment, IHttpContextAccessor accessor)
+        public ArticuloController(IResultadoOperacion resultado, IConfiguration configuration, 
+            IWebHostEnvironment environment, IHttpContextAccessor accessor)
         {
             _configuration = configuration;
             _resultado = resultado;
             _brArticulo = new BrArticulo(configuration, environment);
             _accessor = accessor;
 
-            UsuarioViewModel usuario = Session.obtenerUsuarioLogueadoStatic();
+            UsuarioViewModel usuario = new Session(_accessor).obtenerUsuarioLogueado();
             //UsuarioViewModel usuario = new Session(_accessor).obtenerUsuarioLogueado();
             _idUsuario = usuario.idUsuario;
             _idSucursal = usuario.idSucursal;

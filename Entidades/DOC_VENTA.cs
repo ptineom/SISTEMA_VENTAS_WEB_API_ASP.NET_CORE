@@ -87,6 +87,7 @@ namespace Entidades
         public string NOM_UM { get; set; }
         public string ABREVIADO { get; set; }
         public decimal PRECIO_UNITARIO { get; set; }
+        public string CODIGO_BARRA { get; set; }
     }
    
     public class CONSULTA_X_MES

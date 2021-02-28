@@ -17,7 +17,7 @@ using Entidades;
 using SistemaVentas.WebApi.ViewModels;
 using System.Text.Json;
 
-namespace SistemaVentas.WebApi.Seguridad
+namespace SistemaVentas.WebApi.Servicios.Seguridad
 {
     public class TokenGenerator
     {
@@ -27,7 +27,47 @@ namespace SistemaVentas.WebApi.Seguridad
             this._configuracion = configuracion;
         }
 
-        public string generateJWT(UsuarioViewModel usuario)
+        #region "Métodos públicos"
+        public TokensViewModel getTokens(UsuarioViewModel modelo)
+        {
+            //Generación de jwt
+            TokenGenerator tokenGenerator = new TokenGenerator(_configuracion);
+            string token = tokenGenerator.generateJWT(modelo);
+
+            //Generacíon del refreshToken
+            string refreshToken = tokenGenerator.generateRefreshToken();
+            //Serializamos los claims
+            string jsonClaims = JsonSerializer.Serialize(new
+            {
+                ID_USUARIO = modelo.idUsuario,
+                NOM_USUARIO = modelo.nomUsuario,
+                NOM_ROL = modelo.nomRol,
+                ID_SUCURSAL = modelo.idSucursal,
+                NOM_SUCURSAL = modelo.nomSucursal,
+                FLG_CTRL_TOTAL = modelo.flgCtrlTotal
+            });
+
+            BrRefreshToken brRefreshToken = new BrRefreshToken();
+            ResultadoOperacion resultado = new ResultadoOperacion();
+            //Grabamos el refreshToken en la BD.
+            resultado = brRefreshToken.grabarRefreshToken(new REFRESH_TOKEN()
+            {
+                ID_REFRESH_TOKEN = HashHelper.GetHash256(refreshToken),
+                ID_USUARIO_TOKEN = modelo.idUsuario,
+                TIEMPO_EXPIRACION_MINUTOS = Convert.ToInt32(_configuracion.GetSection("APP_SETTINGS:JWT:REFRESH_TOKEN_EXPIRE_MINUTES").Value),
+                FEC_CREACION_UTC = DateTime.UtcNow,
+                IP_ADDRESS = modelo.ipAddress,
+                ID_USUARIO_REGISTRO = modelo.idUsuario,
+                JSON_CLAIMS = jsonClaims
+            });
+
+            return new TokensViewModel() { accessToken = token, refreshToken = refreshToken };
+        }
+
+        #endregion
+
+        #region "Métodos privados"
+        private string generateJWT(UsuarioViewModel usuario)
         {
             var audienceToken = _configuracion.GetSection("APP_SETTINGS:JWT:JWT_AUDIENCE_TOKEN").Value;
             var issuerToken = _configuracion.GetSection("APP_SETTINGS:JWT:JWT_ISSUER_TOKEN").Value;
@@ -71,7 +111,7 @@ namespace SistemaVentas.WebApi.Seguridad
             return new JwtSecurityTokenHandler().WriteToken(_Token);
         }
 
-        public string generateRefreshToken()
+        private string generateRefreshToken()
         {
             var RandomNumber = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
@@ -80,41 +120,6 @@ namespace SistemaVentas.WebApi.Seguridad
                 return Convert.ToBase64String(RandomNumber);
             }
         }
-
-        public TokensViewModel getTokens(UsuarioViewModel modelo)
-        {
-            //Generación de jwt
-            TokenGenerator tokenGenerator = new TokenGenerator(_configuracion);
-            string token = tokenGenerator.generateJWT(modelo);
-
-            //Generacíon del refreshToken
-            string refreshToken = tokenGenerator.generateRefreshToken();
-            //Serializamos los claims
-            string jsonClaims = JsonSerializer.Serialize(new
-            {
-                ID_USUARIO = modelo.idUsuario,
-                NOM_USUARIO = modelo.nomUsuario,
-                NOM_ROL = modelo.nomRol,
-                ID_SUCURSAL = modelo.idSucursal,
-                NOM_SUCURSAL = modelo.nomSucursal,
-                FLG_CTRL_TOTAL = modelo.flgCtrlTotal
-            });
-
-            BrRefreshToken brRefreshToken = new BrRefreshToken();
-            ResultadoOperacion resultado = new ResultadoOperacion();
-            //Grabamos el refreshToken en la BD.
-            resultado = brRefreshToken.grabarRefreshToken(new REFRESH_TOKEN()
-            {
-                ID_REFRESH_TOKEN = HashHelper.GetHash256(refreshToken),
-                ID_USUARIO_TOKEN = modelo.idUsuario,
-                TIEMPO_EXPIRACION_MINUTOS = Convert.ToInt32(_configuracion.GetSection("APP_SETTINGS:JWT:REFRESH_TOKEN_EXPIRE_MINUTES").Value),
-                FEC_CREACION_UTC = DateTime.UtcNow,
-                IP_ADDRESS = modelo.ipAddress,
-                ID_USUARIO_REGISTRO = modelo.idUsuario,
-                JSON_CLAIMS = jsonClaims
-            });
-
-            return new TokensViewModel() { accessToken = token, refreshToken = refreshToken };
-        }
+        #endregion
     }
 }

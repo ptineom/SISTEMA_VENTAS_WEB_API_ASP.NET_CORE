@@ -3,7 +3,7 @@ using Entidades;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ServicioWebApi.SistemaVentas.ViewModels;
-using SistemaVentas.WebApi.Seguridad;
+using SistemaVentas.WebApi.Servicios.Seguridad;
 using SistemaVentas.WebApi.ViewModels.Seguridad;
 using System;
 using System.Collections.Generic;
@@ -20,13 +20,15 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         private IResultadoOperacion _resultado = null;
         private string _idUsuario;
         private string _idSucursal;
+        public IHttpContextAccessor _accessor { get; set; }
 
-        public MarcaController(IResultadoOperacion resultado)
+        public MarcaController(IResultadoOperacion resultado, IHttpContextAccessor accessor)
         {
             _brMarca = new BrMarca();
             _resultado = resultado;
+            _accessor = accessor;
 
-            UsuarioViewModel usuario = Session.obtenerUsuarioLogueadoStatic();
+            UsuarioViewModel usuario = new Session(_accessor).obtenerUsuarioLogueado();
             _idUsuario = usuario.idUsuario;
             _idSucursal = usuario.idSucursal;
         }

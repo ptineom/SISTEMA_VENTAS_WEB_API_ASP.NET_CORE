@@ -174,16 +174,16 @@ namespace CapaDao
                 cmd.Parameters.Add("@ID_SUCURSAL", SqlDbType.VarChar, 2).Value = oModelo.ID_SUCURSAL;
                 cmd.Parameters.Add("@ID_TIPO_COMPROBANTE", SqlDbType.VarChar, 2).Value = oModelo.ID_TIPO_COMPROBANTE;
                 //
-                SqlParameter paramNroSerie = new SqlParameter("@NRO_SERIE", SqlDbType.VarChar,6);
+                SqlParameter paramNroSerie = new SqlParameter("@NRO_SERIE", SqlDbType.VarChar, 6);
                 paramNroSerie.Direction = ParameterDirection.InputOutput;
-                paramNroSerie.Value =  string.IsNullOrEmpty(oModelo.NRO_SERIE) ? (object)DBNull.Value : oModelo.NRO_SERIE;
+                paramNroSerie.Value = string.IsNullOrEmpty(oModelo.NRO_SERIE) ? (object)DBNull.Value : oModelo.NRO_SERIE;
                 cmd.Parameters.Add(paramNroSerie);
                 SqlParameter paramNroDocumento = new SqlParameter("@NRO_DOCUMENTO", SqlDbType.Int);
                 paramNroDocumento.Direction = ParameterDirection.InputOutput;
                 paramNroDocumento.Value = oModelo.NRO_DOCUMENTO == 0 ? (object)DBNull.Value : oModelo.NRO_DOCUMENTO;
                 cmd.Parameters.Add(paramNroDocumento);
                 //
-                cmd.Parameters.Add("@ID_CLIENTE", SqlDbType.VarChar, 8).Value = oModelo.ID_CLIENTE;
+                cmd.Parameters.Add("@ID_CLIENTE", SqlDbType.VarChar, 8).Value = string.IsNullOrEmpty(oModelo.ID_CLIENTE) ? (object)DBNull.Value : oModelo.ID_CLIENTE;
                 cmd.Parameters.Add("@ID_MONEDA", SqlDbType.VarChar, 3).Value = oModelo.ID_MONEDA;
                 cmd.Parameters.Add("@FEC_DOCUMENTO", SqlDbType.DateTime).Value = oModelo.FEC_DOCUMENTO;
                 cmd.Parameters.Add("@OBS_VENTA", SqlDbType.VarChar, 200).Value = string.IsNullOrEmpty(oModelo.OBS_VENTA) ? (object)DBNull.Value : oModelo.OBS_VENTA;
@@ -225,7 +225,7 @@ namespace CapaDao
                 cmd.Parameters.Add("@ID_SUCURSAL", SqlDbType.VarChar, 2).Value = idSucursal;
                 cmd.Parameters.Add("@ID_CLIENTE", SqlDbType.VarChar, 8).Value = string.IsNullOrEmpty(idCliente) ? (object)DBNull.Value : idCliente;
                 cmd.Parameters.Add("@ID_TIPO_COMPROBANTE", SqlDbType.VarChar, 2).Value = string.IsNullOrEmpty(idTipoComprobante) ? (object)DBNull.Value : idTipoComprobante;
-                cmd.Parameters.Add("@NRO_SERIE", SqlDbType.VarChar,6).Value = string.IsNullOrEmpty( nroSerie) ? (object)DBNull.Value : nroSerie;
+                cmd.Parameters.Add("@NRO_SERIE", SqlDbType.VarChar, 6).Value = string.IsNullOrEmpty(nroSerie) ? (object)DBNull.Value : nroSerie;
                 cmd.Parameters.Add("@NRO_DOCUMENTO", SqlDbType.Int).Value = nroDocumento == 0 ? (object)DBNull.Value : nroDocumento;
                 cmd.Parameters.Add("@FECHA_INICIO", SqlDbType.VarChar, 10).Value = string.IsNullOrEmpty(fechaInicio) ? (object)DBNull.Value : fechaInicio;
                 cmd.Parameters.Add("@FECHA_FINAL", SqlDbType.VarChar, 10).Value = string.IsNullOrEmpty(fechaFinal) ? (object)DBNull.Value : fechaFinal;
@@ -275,7 +275,7 @@ namespace CapaDao
                 cmd.Parameters.Add("@ACCION", SqlDbType.VarChar, 3).Value = "GET";
                 cmd.Parameters.Add("@ID_SUCURSAL", SqlDbType.VarChar, 2).Value = idSucursal;
                 cmd.Parameters.Add("@ID_TIPO_COMPROBANTE", SqlDbType.VarChar, 2).Value = idTipoComprobante;
-                cmd.Parameters.Add("@NRO_SERIE", SqlDbType.VarChar,6).Value = nroSerie;
+                cmd.Parameters.Add("@NRO_SERIE", SqlDbType.VarChar, 6).Value = nroSerie;
                 cmd.Parameters.Add("@NRO_DOCUMENTO", SqlDbType.Int).Value = nroDocumento;
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader != null)
@@ -335,6 +335,7 @@ namespace CapaDao
                                     detalle.PRECIO_UNITARIO = reader.GetDecimal(reader.GetOrdinal("PRECIO_UNITARIO"));
                                     detalle.IMPORTE = reader.GetDecimal(reader.GetOrdinal("IMPORTE"));
                                     detalle.ABREVIADO = reader.GetString(reader.GetOrdinal("ABREVIADO"));
+                                    detalle.CODIGO_BARRA = reader.IsDBNull(reader.GetOrdinal("CODIGO_BARRA")) ? string.Empty : reader.GetString(reader.GetOrdinal("CODIGO_BARRA"));
                                     lista.Add(detalle);
                                 }
                                 modelo.listaDetalle = lista;
@@ -362,7 +363,7 @@ namespace CapaDao
                 cmd.Parameters.Add("@NRO_SERIE", SqlDbType.VarChar, 6).Value = nroSerie;
                 cmd.Parameters.Add("@NRO_DOCUMENTO", SqlDbType.Int).Value = nroDocumento;
 
-                SqlParameter paramNroSerie = new SqlParameter("@NRO_SERIE_NC", SqlDbType.VarChar,2);
+                SqlParameter paramNroSerie = new SqlParameter("@NRO_SERIE_NC", SqlDbType.VarChar, 2);
                 paramNroSerie.Direction = ParameterDirection.InputOutput;
                 //paramNroSerie.Value = nroSerie == 0 ? (object)DBNull.Value : nroSerie;
                 cmd.Parameters.Add(paramNroSerie);
@@ -528,7 +529,7 @@ namespace CapaDao
                 cmd.Parameters.Add("@ACCION", SqlDbType.VarChar, 3).Value = "DET";
                 cmd.Parameters.Add("@ID_SUCURSAL", SqlDbType.VarChar, 2).Value = idSucursal;
                 cmd.Parameters.Add("@ID_TIPO_COMPROBANTE", SqlDbType.VarChar, 2).Value = idTipoComprobante;
-                cmd.Parameters.Add("@NRO_SERIE", SqlDbType.VarChar,6).Value = nroSerie;
+                cmd.Parameters.Add("@NRO_SERIE", SqlDbType.VarChar, 6).Value = nroSerie;
                 cmd.Parameters.Add("@NRO_DOCUMENTO", SqlDbType.Int).Value = nroDocumento;
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader != null)
@@ -558,7 +559,7 @@ namespace CapaDao
             return lista;
         }
 
-        public List<DOC_VENTA> consultaVentasPorUsuario(SqlConnection con, string idSucursal, string fechaInicio, string fechaFinal,string tipo)
+        public List<DOC_VENTA> consultaVentasPorUsuario(SqlConnection con, string idSucursal, string fechaInicio, string fechaFinal, string tipo)
         {
             List<DOC_VENTA> lista = null;
             DOC_VENTA modelo = null;

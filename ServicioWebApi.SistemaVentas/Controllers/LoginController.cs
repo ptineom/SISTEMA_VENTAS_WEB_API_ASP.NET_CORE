@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SistemaVentas.WebApi.Seguridad;
+using ServicioWebApi.SistemaVentas.Servicios.Seguridad;
+using SistemaVentas.WebApi.Servicios.Seguridad;
 using SistemaVentas.WebApi.ViewModels;
 using SistemaVentas.WebApi.ViewModels.Seguridad;
 using System;
@@ -24,14 +25,18 @@ namespace ServicioWebApi.SistemaVentas.Controllers
     {
         private IConfiguration _configuration { get; }
         private IResultadoOperacion _resultado { get; set; }
-        private BrUsuario oBrUsuario = null;
-        private IWebHostEnvironment _hostingEnvironment { get; }
 
-        public LoginController(IConfiguration configuration, IResultadoOperacion resultado, IWebHostEnvironment hostingEnvironment)
+        private BrUsuario oBrUsuario = null;
+        private IWebHostEnvironment _environment { get; }
+        private IHttpContextAccessor _accessor { get; set; }
+
+        public LoginController(IConfiguration configuration, IResultadoOperacion resultado,
+            IWebHostEnvironment environment, IHttpContextAccessor accessor)
         {
             _configuration = configuration;
             _resultado = resultado;
-            _hostingEnvironment = hostingEnvironment;
+            _environment = environment;
+            _accessor = accessor;
             oBrUsuario = new BrUsuario();
         }
 
@@ -192,105 +197,21 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             return Ok(new { token = tokens.accessToken, tokens.refreshToken });
         }
 
-        /// <summary>
-        /// Método recursivo que construirá el arbol de menus.
-        /// </summary>
-        /// <param name="aplicacion">Objeto del cuál se obtendrá los datos requeridos para la construcción del arbol.</param>
-        /// <param name="listaGeneral">Lista de todos los menus que se usará para hacer filtrados</param>
-        /// <param name="menuItem">Objeto donde se construirá el arbol de menu</param>
-        private void setChildren(APLICACION aplicacion, List<APLICACION> listaGeneral, MenuItem menuItem)
-        {
-            menuItem.label = aplicacion.NOM_APLICACION;
-            menuItem.icon = aplicacion.ICON_SPA;
-            menuItem.route = aplicacion.ROUTE_SPA;
-            menuItem.flgHome = aplicacion.FLG_HOME;
-
-            if (aplicacion.FLG_FORMULARIO && !string.IsNullOrEmpty(aplicacion.BREADCRUMS))
-            {
-                //COnstruimos el array de objetos breadcrums
-                string[] arrBreadCrums = aplicacion.BREADCRUMS.Split('|');
-                List<object> breadCrums = new List<object>();
-                for (int i = 0; i < arrBreadCrums.Length; i++)
-                {
-                    var obj = new
-                    {
-                        text = arrBreadCrums[i],
-                        disabled = (i == (arrBreadCrums.Length - 1)) ? false : true
-                    };
-                    breadCrums.Add(obj);
-                }
-                menuItem.breadcrumbs = breadCrums;
-            }
-            //Si tiene hijos ejeuta la recursividad
-            var childs = listaGeneral.Where(x => x.ID_APLICACION_PADRE == aplicacion.ID_APLICACION).ToList();
-            if (childs.Count > 0)
-            {
-                List<MenuItem> listaSubMenu = new List<MenuItem>();
-                foreach (var child in childs)
-                {
-                    MenuItem subMenu = new MenuItem();
-                    setChildren(child, listaGeneral, subMenu);
-                    listaSubMenu.Add(subMenu);
-                };
-                menuItem.children = listaSubMenu;
-            }
-        }
-
-        private string avatarB64(string archivo)
-        {
-            string directorio = string.Empty;
-            string b64 = "";
-            byte[] foto = null;
-
-            if (!string.IsNullOrEmpty(archivo))
-            {
-                string contentRootPath = _hostingEnvironment.WebRootPath;
-                directorio = Path.Combine(contentRootPath, Configuraciones.UPLOAD_EMPLEADOS, archivo);
-                foto = System.IO.File.ReadAllBytes(directorio);
-                b64 = Convert.ToBase64String(foto);
-            }
-            else
-            {
-                string webRootPath = _hostingEnvironment.WebRootPath;
-                directorio = Path.Combine(webRootPath, "Imagenes", "avatar_notFound.png");
-                foto = System.IO.File.ReadAllBytes(directorio);
-                b64 = Convert.ToBase64String(foto);
-            }
-            return b64;
-        }
-
         private ResultadoOperacion getData(USUARIO modelo)
         {
             string token = string.Empty;
             string refreshToken = string.Empty;
+            Menu servicioMenu = new Menu(_environment);
 
             //Obtengo el avatar en b64
-            string avatar = avatarB64(modelo.FOTO);
+            string avatar = servicioMenu.avatarB64(modelo.FOTO);
 
-            BrAplicacion brAplicacion = new BrAplicacion();
-            //Obtenemos la lista de menu según el usuario.
-            ResultadoOperacion resultado = brAplicacion.listarMenuUsuario(modelo.ID_USUARIO);
-
-            if (!resultado.bResultado)
-                throw new Exception(resultado.sMensaje);
-
-            //Construímos el menú a requerimiento del cliente.
-            MenuItem menuItem = null;
-            if (resultado.data != null)
-            {
-                menuItem = new MenuItem();
-                List<APLICACION> listaGeneral = (List<APLICACION>)resultado.data;
-
-                APLICACION aplicacionRaiz = listaGeneral.FirstOrDefault(x => x.FLG_RAIZ);
-
-                //Método recursivo que construirá el arbol de menus.
-                setChildren(aplicacionRaiz, listaGeneral, menuItem);
-                //Marcamos a los primeros hijos como raiz para la renderización en la vista.
-                menuItem.children.ForEach((elem) => elem.flgRaiz = true);
-            }
+            //Construímos el menú.
+            MenuItem menuItem = servicioMenu.obtenerMenuPorUsuario(modelo.ID_USUARIO);
 
             //Generamos el accessToken y refreshToken.
-            TokensViewModel tokens = new TokenGenerator(_configuration).getTokens(new UsuarioViewModel()
+            TokenGenerator tokenGenerator = new TokenGenerator(_configuration);
+            TokensViewModel tokens = tokenGenerator.getTokens(new UsuarioViewModel()
             {
                 idUsuario = modelo.ID_USUARIO,
                 nomUsuario = modelo.NOM_USUARIO,
@@ -302,7 +223,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             });
 
             //Resultado final.
-            resultado = new ResultadoOperacion();
+            ResultadoOperacion resultado = new ResultadoOperacion();
             resultado.SetResultado(true, new
             {
                 token = tokens.accessToken,
