@@ -10,7 +10,7 @@ namespace CapaDao
 {
     public class DaoFamilia
     {
-        public List<FAMILIA> listaFamilias(SqlConnection con,  string idGrupo)
+        public List<FAMILIA> GetAllByGroupId(SqlConnection con,  string idGrupo)
         {
             List<FAMILIA> lista = null;
             FAMILIA modelo = null;
@@ -42,7 +42,7 @@ namespace CapaDao
             }
             return lista;
         }
-        public List<FAMILIA> cboFamilia(SqlConnection con, string idGrupo)
+        public List<FAMILIA> GetAllByGroupIdHelper(SqlConnection con, string idGrupo)
         {
             List<FAMILIA> lista = null;
             FAMILIA modelo = null;
@@ -71,7 +71,7 @@ namespace CapaDao
             }
             return lista;
         }
-        public bool grabarFamilia(SqlConnection con, SqlTransaction trx, FAMILIA oModelo)
+        public bool Register(SqlConnection con, SqlTransaction trx, FAMILIA oModelo)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_FAMILIA", con, trx))
@@ -89,7 +89,7 @@ namespace CapaDao
             }
             return bExito;
         }
-        public bool anularFamilia(SqlConnection con, SqlTransaction trx, string idGrupo, string idFamilia, string idUsuario)
+        public bool Delete(SqlConnection con, SqlTransaction trx, string idGrupo, string idFamilia, string idUsuario)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_FAMILIA", con, trx))

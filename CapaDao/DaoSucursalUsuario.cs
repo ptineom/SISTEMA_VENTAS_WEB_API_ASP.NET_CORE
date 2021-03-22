@@ -10,7 +10,7 @@ namespace CapaDao
 {
     public class DaoSucursalUsuario
     {
-        public bool grabarSucursalUsuario(SqlConnection con, SqlTransaction trx, SUCURSAL_USUARIO oModelo)
+        public bool Register(SqlConnection con, SqlTransaction trx, SUCURSAL_USUARIO oModelo)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_SUCURSAL_USUARIO", con, trx))
@@ -27,7 +27,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public List<USUARIO> listaUsuarios(SqlConnection con, string idSucursal, ref List<SUCURSAL_USUARIO> listaSucUsu)
+        public List<USUARIO> GetUsersBySucursalId(SqlConnection con, string idSucursal, ref List<SUCURSAL_USUARIO> listaSucUsu)
         {
             List<USUARIO> lista = null;
             List<SUCURSAL_USUARIO> lSucursalUsuario = null;
@@ -74,7 +74,7 @@ namespace CapaDao
             return lista;
         }
 
-        public bool anularSucursalUsuario(SqlConnection con, SqlTransaction trx, string idSucursal, string idUsuario, string idUsuarioRegistro)
+        public bool Delete(SqlConnection con, SqlTransaction trx, string idSucursal, string idUsuario, string idUsuarioRegistro)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_SUCURSAL_USUARIO", con, trx))
@@ -91,7 +91,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public List<SUCURSAL> listaSucursalPorUsuario(SqlConnection con, string idUsuario)
+        public List<SUCURSAL> GetSucursalesByUserId(SqlConnection con, string idUsuario)
         {
             List<SUCURSAL> lista = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_SUCURSAL_USUARIO", con))

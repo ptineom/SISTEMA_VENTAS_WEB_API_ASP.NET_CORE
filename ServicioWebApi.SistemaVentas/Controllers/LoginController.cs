@@ -23,12 +23,11 @@ namespace ServicioWebApi.SistemaVentas.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private IConfiguration _configuration { get; }
-        private IResultadoOperacion _resultado { get; set; }
-
-        private BrUsuario oBrUsuario = null;
-        private IWebHostEnvironment _environment { get; }
-        private IHttpContextAccessor _accessor { get; set; }
+        private IConfiguration _configuration = null;
+        private IResultadoOperacion _resultado = null;
+        private BrUsuario _brUsuario = null;
+        private IWebHostEnvironment _environment = null;
+        private IHttpContextAccessor _accessor = null;
 
         public LoginController(IConfiguration configuration, IResultadoOperacion resultado,
             IWebHostEnvironment environment, IHttpContextAccessor accessor)
@@ -37,12 +36,19 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _resultado = resultado;
             _environment = environment;
             _accessor = accessor;
-            oBrUsuario = new BrUsuario();
+            _brUsuario = new BrUsuario();
         }
 
-        [HttpPost("accederAsync")]
+        [HttpGet("GetTorito")]
         [AllowAnonymous]
-        public async Task<IActionResult> accederAsync([FromBody] RequestLoginViewModel login)
+        public IActionResult GetToritoAsync()
+        {
+            return Ok(new { name = "Hector toro valcneia" });
+        }
+
+        [HttpPost("ValidateUser")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ValidateUserAsync([FromBody] RequestLoginViewModel request)
         {
 
             string token = string.Empty;
@@ -51,21 +57,21 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
 
-            if (string.IsNullOrWhiteSpace(login.idUsuario) || string.IsNullOrWhiteSpace(login.password))
+            if (string.IsNullOrWhiteSpace(request.IdUsuario) || string.IsNullOrWhiteSpace(request.Password))
                 return BadRequest(new { Message = "Usuario y/o contraseñas incorrectas", Status = "Error" });
 
 
             //Validamos la existencia del usuario en la BD.
-            string passwordHash256 = HashHelper.GetHash256(login.password);
-            _resultado = await Task.Run(() => oBrUsuario.acceder(login.idUsuario, passwordHash256));
+            string passwordHash256 = HashHelper.GetHash256(request.Password);
+            _resultado = await Task.Run(() => _brUsuario.ValidateUser(request.IdUsuario, passwordHash256));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status404NotFound, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status404NotFound, new { Message = _resultado.Mensaje, Status = "Error" });
 
             try
             {
                 //Datos del usuario
-                USUARIO modelo = (USUARIO)_resultado.data;
+                USUARIO modelo = (USUARIO)_resultado.Data;
                 int countSedes = modelo.COUNT_SEDES;
 
                 if (countSedes == 0)
@@ -79,7 +85,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                     try
                     {
                         //Generamos el jwt, refresjToken, menú, avatar, etc.
-                        _resultado = await Task.Run(() => getData(modelo));
+                        _resultado = await Task.Run(() => GetData(modelo));
                     }
                     catch (Exception ex)
                     {
@@ -92,11 +98,11 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                     BrSucursalUsuario oBrSucursalUsuario = new BrSucursalUsuario();
 
                     //Lista de sucursales por usuario.
-                    _resultado = await Task.Run(() => oBrSucursalUsuario.listaSucursalPorUsuario(modelo.ID_USUARIO));
-                    if (!_resultado.bResultado)
-                        return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+                    _resultado = await Task.Run(() => oBrSucursalUsuario.GetSucursalesByUserId(modelo.ID_USUARIO));
+                    if (!_resultado.Resultado)
+                        return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
-                    _resultado.data = new { lista = _resultado.data, bVariasSedes = true };
+                    _resultado.Data = new { Lista = _resultado.Data, FlgVariasSedes = true };
                 }
             }
             catch (InvalidOperationException ex)
@@ -112,9 +118,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             return Ok(_resultado);
         }
 
-        [HttpPost("generarTokenAsync")]
+        [HttpPost("GenerateToken")]
         [AllowAnonymous]
-        public async Task<IActionResult> generarTokenAsync([FromBody] RequestUsuarioSucursalViewModel login)
+        public async Task<IActionResult> GenerateTokenAsync([FromBody] RequestUsuarioSucursalViewModel request)
         {
             string token = string.Empty;
             if (ModelState.IsValid)
@@ -122,19 +128,19 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 try
                 {
                     //Datos del usuario
-                    _resultado = await Task.Run(() => oBrUsuario.acceder(login.idUsuario, HashHelper.GetHash256(login.password)));
+                    _resultado = await Task.Run(() => _brUsuario.ValidateUser(request.IdUsuario, HashHelper.GetHash256(request.Password)));
 
-                    if (!_resultado.bResultado)
+                    if (!_resultado.Resultado)
                         return StatusCode(StatusCodes.Status404NotFound, new { Message = "Usuario y/o contraseñas incorrectas", Status = "Error" });
 
-                    USUARIO modelo = (USUARIO)_resultado.data;
+                    USUARIO modelo = (USUARIO)_resultado.Data;
                     //Pasamo las sucursal seleccionada en el cliente.
-                    modelo.ID_SUCURSAL = login.idSucursal;
-                    modelo.NOM_SUCURSAL = login.nomSucursal;
+                    modelo.ID_SUCURSAL = request.IdSucursal;
+                    modelo.NOM_SUCURSAL = request.NomSucursal;
                     try
                     {
                         //Generamos el jwt, refresjToken, menú, avatar, etc.
-                        _resultado = await Task.Run(() => getData(modelo));
+                        _resultado = await Task.Run(() => GetData(modelo));
                     }
                     catch (Exception ex)
                     {
@@ -161,21 +167,21 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("generarTokenWithRefreshTokenAsync")]
-        public async Task<IActionResult> generarTokenWithRefreshTokenAsync([FromBody] RequestRefreshTokenViewModel modelo)
+        [HttpPost("GenerateTokenWithRefreshToken")]
+        public async Task<IActionResult> GenerateTokenWithRefreshTokenAsync([FromBody] RequestRefreshTokenViewModel request)
         {
             //Generación de un nuevo accesToken con el refrehToken.
-            BrRefreshToken br = new BrRefreshToken();
+            BrRefreshToken br = new BrRefreshToken(_configuration);
 
-            _resultado = await Task.Run(() => br.refreshTokenPorCodigo(Helper.HashHelper.GetHash256(modelo.idRefreshToken)));
+            _resultado = await Task.Run(() => br.GetById(Helper.HashHelper.GetHash256(request.IdRefreshToken)));
             //Validamos la existencia del token
-            if (_resultado.data == null)
+            if (_resultado.Data == null)
             {
                 //    throw new SecurityTokenException()
                 return StatusCode(StatusCodes.Status401Unauthorized, new { Message = "Refresh token no encontrado", Status = "Error" });
             }
 
-            REFRESH_TOKEN oRefreshToken = (REFRESH_TOKEN)_resultado.data;
+            REFRESH_TOKEN oRefreshToken = (REFRESH_TOKEN)_resultado.Data;
             //Comprobamos si aún no ha expirádo el token.
             if (oRefreshToken.FEC_EXPIRACION_UTC < DateTime.UtcNow)
             {
@@ -185,52 +191,50 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             if (string.IsNullOrEmpty(oRefreshToken.JSON_CLAIMS))
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Datos del usuario no encontrado", Status = "Error" });
 
-            string jsonClaims = oRefreshToken.JSON_CLAIMS.Replace("ID_USUARIO", "idUsuario")
-            .Replace("NOM_USUARIO", "nomUsuario").Replace("NOM_ROL", "nomRol").Replace("ID_SUCURSAL", "idSucursal")
-            .Replace("NOM_SUCURSAL", "nomSucursal").Replace("FLG_CTRL_TOTAL", "flgCtrlTotal");
+            string jsonClaims = oRefreshToken.JSON_CLAIMS.Replace("ID_USUARIO", "IdUsuario")
+            .Replace("NOM_USUARIO", "NomUsuario").Replace("NOM_ROL", "NomRol").Replace("ID_SUCURSAL", "IdSucursal")
+            .Replace("NOM_SUCURSAL", "NomSucursal").Replace("FLG_CTRL_TOTAL", "FlgCtrlTotal");
 
             UsuarioViewModel usuarioViewModel = JsonSerializer.Deserialize<UsuarioViewModel>(jsonClaims);
 
             //Generamos el accessToken y refreshToken con el modelo.
-            TokensViewModel tokens = new TokenGenerator(_configuration).getTokens(usuarioViewModel);
+            TokensViewModel tokens = new TokenGenerator(_configuration).GetTokens(usuarioViewModel);
 
-            return Ok(new { token = tokens.accessToken, tokens.refreshToken });
+            return Ok(new { Token = tokens.AccessToken, tokens.RefreshToken });
         }
 
-        private ResultadoOperacion getData(USUARIO modelo)
+        private ResultadoOperacion GetData(USUARIO modelo)
         {
-            string token = string.Empty;
-            string refreshToken = string.Empty;
-            Menu servicioMenu = new Menu(_environment);
+            Menu servicioMenu = new Menu(_environment,_configuration);
 
             //Obtengo el avatar en b64
             string avatar = servicioMenu.avatarB64(modelo.FOTO);
 
             //Construímos el menú.
-            MenuItem menuItem = servicioMenu.obtenerMenuPorUsuario(modelo.ID_USUARIO);
+            MenuItem menuItem = servicioMenu.GetMenuByUserId(modelo.ID_USUARIO);
 
             //Generamos el accessToken y refreshToken.
             TokenGenerator tokenGenerator = new TokenGenerator(_configuration);
-            TokensViewModel tokens = tokenGenerator.getTokens(new UsuarioViewModel()
+            TokensViewModel tokens = tokenGenerator.GetTokens(new UsuarioViewModel()
             {
-                idUsuario = modelo.ID_USUARIO,
-                nomUsuario = modelo.NOM_USUARIO,
-                nomRol = modelo.NOM_ROL,
-                idSucursal = modelo.ID_SUCURSAL,
-                nomSucursal = modelo.NOM_SUCURSAL,
-                flgCtrlTotal = modelo.FLG_CTRL_TOTAL,
-                ipAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString()
+                IdUsuario = modelo.ID_USUARIO,
+                NomUsuario = modelo.NOM_USUARIO,
+                NomRol = modelo.NOM_ROL,
+                IdSucursal = modelo.ID_SUCURSAL,
+                NomSucursal = modelo.NOM_SUCURSAL,
+                FlgCtrlTotal = modelo.FLG_CTRL_TOTAL,
+                IpAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString()
             });
 
             //Resultado final.
             ResultadoOperacion resultado = new ResultadoOperacion();
             resultado.SetResultado(true, new
             {
-                token = tokens.accessToken,
-                refreshToken = tokens.refreshToken,
-                menuItem,
-                avatarB64 = avatar,
-                bVariasSedes = false
+                Token = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken,
+                MenuItem = menuItem,
+                AvatarB64 = avatar,
+                FlgVariasSedes = false
             });
 
             return resultado;

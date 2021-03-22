@@ -16,7 +16,7 @@ namespace Helper
 
         public ViewHelper()
         {
-            
+
         }
 
         public static string getValueConfiguration(string section)
@@ -26,7 +26,7 @@ namespace Helper
             configurationBuilder.AddJsonFile(path, false);
             return configurationBuilder.Build().GetSection(section).Value;
         }
-        public static string getNroComprobante(string numero)
+        public static string GetNroComprobante(string numero)
         {
             int tamanioMax = 6;
             string cadena = $"00000{numero}";
@@ -255,19 +255,20 @@ namespace Helper
             return frase.Substring(0, lenght) + " ...";
         }
         //  de cada palabra de la frase la priemra letra lo convierte en mayuscula.
-        public static string CapitalizeAll(string frase)
+        public static string capitalizeAll(string frase)
         {
             if (frase == null)
-            {
                 return "";
-            }
-            else
-            {
-                String resultado = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(frase.ToLower());
-                //String resultado2 = new CultureInfo("en-US", false).TextInfo.ToTitleCase(frase);
-                frase = resultado;
-            }
-            return frase;
+
+            return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(frase.ToLower());
+        }
+        public static string capitalizeFirstLetter(string frase)
+        {
+            if (frase == null)
+                return "";
+
+            frase = frase.ToLower();
+            return $"{frase.Substring(0, 1).ToUpper()}{frase.Substring(1)}"; ;
         }
         // obtengo hace que tiempo fue ingresado algo(fecha y hora)
         public static string TimeAgo(string d)

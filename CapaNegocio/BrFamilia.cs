@@ -7,104 +7,106 @@ using Entidades;
 using CapaDao;
 using Helper;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+
 namespace CapaNegocio
 {
     public class BrFamilia
     {
-        DaoFamilia dao = null;
-        ResultadoOperacion oResultado = null;
-        public BrFamilia()
+        private DaoFamilia _dao = null;
+        private ResultadoOperacion _resultado = null;
+        private IConfiguration _configuration = null;
+        private Conexion _conexion = null;
+        public BrFamilia(IConfiguration configuration)
         {
-            dao = new DaoFamilia();
-            oResultado = new ResultadoOperacion();
+            _configuration = configuration;
+            _dao = new DaoFamilia();
+            _resultado = new ResultadoOperacion();
+            _conexion = new Conexion(_configuration);
         }
-        public ResultadoOperacion listaFamilias(string idGrupo)
+        public ResultadoOperacion GetAllByGroupId(string idGrupo)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = dao.listaFamilias(con, idGrupo);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                    var lista = _dao.GetAllByGroupId(con, idGrupo);
+                  
+                    _resultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
                     Elog.save(this, ex);
-                    oResultado.SetResultado(false, ex.Message);
+                    _resultado.SetResultado(false, ex.Message);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-        public ResultadoOperacion cboFamilia(string idGrupo)
+        public ResultadoOperacion GetAllByGroupIdHelper(string idGrupo)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = dao.cboFamilia(con, idGrupo);
+                    var lista = _dao.GetAllByGroupIdHelper(con, idGrupo);
                     if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                        lista.ForEach(x => x.NOM_FAMILIA = ViewHelper.capitalizeFirstLetter(x.NOM_FAMILIA));
+
+                    _resultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
                     Elog.save(this, ex);
-                    oResultado.SetResultado(false, ex.Message);
+                    _resultado.SetResultado(false, ex.Message);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-        public ResultadoOperacion grabarFamilia(FAMILIA oModelo)
+        public ResultadoOperacion Register(FAMILIA oModelo)
         {
             SqlTransaction trx = null;
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.grabarFamilia(con, trx, oModelo);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
+                    _dao.Register(con, trx, oModelo);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-        public ResultadoOperacion anularFamilia(string idGrupo, string idFamilia, string idUsuario)
+        public ResultadoOperacion Delete(string idGrupo, string idFamilia, string idUsuario)
         {
             SqlTransaction trx = null;
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.anularFamilia(con, trx, idGrupo, idFamilia, idUsuario);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
+                    _dao.Delete(con, trx, idGrupo, idFamilia, idUsuario);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
     }
 }

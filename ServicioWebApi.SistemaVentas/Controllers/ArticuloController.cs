@@ -27,47 +27,47 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         private IConfiguration _configuration;
         private IWebHostEnvironment _environment;
         private IHttpContextAccessor _accessor;
-        public ArticuloController(IResultadoOperacion resultado, IConfiguration configuration, 
+
+        public ArticuloController(IResultadoOperacion resultado, IConfiguration configuration,
             IWebHostEnvironment environment, IHttpContextAccessor accessor)
         {
             _configuration = configuration;
-            _resultado = resultado;
-            _brArticulo = new BrArticulo(configuration, environment);
-            _accessor = accessor;
-
-            UsuarioViewModel usuario = new Session(_accessor).obtenerUsuarioLogueado();
-            //UsuarioViewModel usuario = new Session(_accessor).obtenerUsuarioLogueado();
-            _idUsuario = usuario.idUsuario;
-            _idSucursal = usuario.idSucursal;
             _environment = environment;
+            _accessor = accessor;
+            _resultado = resultado;
+            _brArticulo = new BrArticulo(_configuration, _environment);
+
+            UsuarioViewModel usuario = new Session(_accessor).GetUserLogged();
+            _idUsuario = usuario.IdUsuario;
+            _idSucursal = usuario.IdSucursal;
         }
 
-        [HttpGet("getData")]
-        public async Task<IActionResult> getDataAsync()
+        [HttpGet("GetData")]
+        public async Task<IActionResult> GetDataAsync()
         {
             BrEmpresa brEmpresa = new BrEmpresa(_configuration, _environment);
-            BrGrupo brGrupo = new BrGrupo();
-            BrMoneda brMoneda = new BrMoneda();
-            ResultadoOperacion resultEmpresa = await Task.Run(() => brEmpresa.obtenerEmpresa("", true, false));
-            ResultadoOperacion resultGrupo = await Task.Run(() => brGrupo.listaGrupos());
-            ResultadoOperacion resultMoneda = await Task.Run(() => brMoneda.listaMonedas());
+            BrGrupo brGrupo = new BrGrupo(_configuration);
+            BrMoneda brMoneda = new BrMoneda(_configuration);
+            ResultadoOperacion resultEmpresa = await Task.Run(() => brEmpresa.GetByFilters("", true, false));
+            ResultadoOperacion resultGrupo = await Task.Run(() => brGrupo.GetAll());
+            ResultadoOperacion resultMoneda = await Task.Run(() => brMoneda.GetAll());
 
-            if (!resultEmpresa.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = resultEmpresa.sMensaje, Status = "Error" });
+            if (!resultEmpresa.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = resultEmpresa.Mensaje, Status = "Error" });
 
-            if (!resultGrupo.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = resultGrupo.sMensaje, Status = "Error" });
+            if (!resultGrupo.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = resultGrupo.Mensaje, Status = "Error" });
 
-            if (resultEmpresa.data == null)
+            if (resultEmpresa.Data == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Datos no encontrado.", Status = "Error" });
 
-            if (resultGrupo.data == null)
+            if (resultGrupo.Data == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Debe de configurar las clasificaciones de grupos.", Status = "Error" });
 
-            if (resultMoneda.data == null)
+            if (resultMoneda.Data == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Debe de configurar las monedas.", Status = "Error" });
 
-            EMPRESA modelo = (EMPRESA)resultEmpresa.data;
+            EMPRESA modelo = (EMPRESA)resultEmpresa.Data;
 
             if (modelo.sucursales == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Debe de configurar al menos una sede.", Status = "Error" });
@@ -75,71 +75,88 @@ namespace ServicioWebApi.SistemaVentas.Controllers
 
             List<object> sucursales = ((List<SUCURSAL>)modelo.sucursales).Select(x => new
             {
-                idSucursal = x.ID_SUCURSAL,
-                nomSucursal = x.NOM_SUCURSAL,
-                direccion = x.DIRECCION,
-                nomAlmacen = x.NOM_ALMACEN,
-                stockActual = 0
+                IdSucursal = x.ID_SUCURSAL,
+                NomSucursal = ViewHelper.capitalizeAll(x.NOM_SUCURSAL),
+                Direccion = ViewHelper.capitalizeFirstLetter(x.DIRECCION),
+                NomAlmacen = ViewHelper.capitalizeAll(x.NOM_ALMACEN),
+                StockActual = 0
             }).ToList<object>();
 
-            List<object> grupos = ((List<GRUPO>)resultGrupo.data).Select(y => new
+            List<object> grupos = ((List<GRUPO>)resultGrupo.Data).Select(y => new
             {
-                idGrupo = y.ID_GRUPO,
-                nomGrupo = y.NOM_GRUPO
+                IdGrupo = y.ID_GRUPO,
+                NomGrupo = y.NOM_GRUPO
             }).ToList<object>();
 
             //Moneda local
-            var monedaLocal = ((List<MONEDA>)resultMoneda.data).Where(x => x.FLG_LOCAL == true).Select(y => new
+            var monedaLocal = ((List<MONEDA>)resultMoneda.Data).Where(x => x.FLG_LOCAL == true).Select(y => new
             {
-                idMoneda = y.ID_MONEDA,
-                nomMoneda = y.NOM_MONEDA,
-                sgnMoneda = y.SGN_MONEDA
+                IdMoneda = y.ID_MONEDA,
+                NomMoneda = y.NOM_MONEDA,
+                SgnMoneda = y.SGN_MONEDA
             }).FirstOrDefault();
+
+            //(string Id, string Nombre, int Edad) a1 = ("01", "Hector", 34);
+            (string Id, string Nombre, int Edad) a1 = (Id: "01", Nombre: "Hector", Edad: 34);
+
+            var qq = a1.Id;
+            var ww = a1.Nombre;
+            var ee = a1.Edad;
+
+            var rr = tupla();
 
             //Resultado final 
             _resultado = new ResultadoOperacion();
             _resultado.SetResultado(true, new
             {
-                igv = modelo.IGV,
-                sucursales,
-                grupos,
-                monedaLocal
+                Igv = modelo.IGV,
+                ListaSucursal = sucursales,
+                ListaGrupo = grupos,
+                MonedaLocal = monedaLocal,
+                a1
             });
+
+
 
             return Ok(_resultado);
         }
-
-        [HttpGet("listaArticulos")]
-        public async Task<IActionResult> listaArticulosAsync([FromQuery] string accion, [FromQuery] string tipoFiltro, [FromQuery] string filtro)
+        private (string Id, string Nombre, int Edad) tupla()
         {
-            _resultado = await Task.Run(() => _brArticulo.listaArticulos(accion, _idSucursal, tipoFiltro, filtro));
+            (string Id, string Nombre, int Edad) a1 = (Id: "01", Nombre: "Hector", Edad: 34);
+            return a1;
+        }
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+        [HttpGet("GetAllByFilters")]
+        public async Task<IActionResult> GetAllByFiltersAsync([FromQuery] string accion, [FromQuery] string tipoFiltro, [FromQuery] string filtro)
+        {
+            _resultado = await Task.Run(() => _brArticulo.GetAllByFilters(accion, _idSucursal, tipoFiltro, filtro));
 
-            if (_resultado.data == null)
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
+
+            if (_resultado.Data == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Datos no encontrado.", Status = "Error" });
 
-            _resultado.data = ((List<ARTICULO>)_resultado.data).Select(x => new
+            _resultado.Data = ((List<ARTICULO>)_resultado.Data).Select(x => new
             {
-                idArticulo = x.ID_ARTICULO,
-                nomArticulo = x.NOM_ARTICULO,
-                nomMarca = x.NOM_MARCA,
-                nomGrupo = x.NOM_GRUPO,
-                nomFamilia = x.NOM_FAMILIA,
-                codigoBarra = x.CODIGO_BARRA,
-                stockActual = x.STOCK_ACTUAL,
-                precioVentaFinal = x.PRECIO_VENTA_FINAL,
-                flgInactivo = x.FLG_INACTIVO,
-                foto1 = x.FOTO1,
-                foto2 = x.FOTO2
+                IdArticulo = x.ID_ARTICULO,
+                NomArticulo = x.NOM_ARTICULO,
+                NomMarca = x.NOM_MARCA,
+                NomGrupo = x.NOM_GRUPO,
+                NomFamilia = x.NOM_FAMILIA,
+                CodigoBarra = x.CODIGO_BARRA,
+                StockActual = x.STOCK_ACTUAL,
+                PrecioVentaFinal = x.PRECIO_VENTA_FINAL,
+                FlgInactivo = x.FLG_INACTIVO,
+                Foto1 = x.FOTO1,
+                Foto2 = x.FOTO2
             });
 
             return Ok(_resultado);
         }
 
-        [HttpPost("grabarArticulo")]
-        public async Task<IActionResult> grabarArticuloAsync([FromForm] RequestGrabarArticulo modelo)
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterAsync([FromForm] RequestGrabarArticulo request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
@@ -147,7 +164,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             string idArticulo = string.Empty, namePhoto = string.Empty;
             bool flgMismaFoto = false;
 
-            IFormFileCollection files = modelo.fileBinary;
+            IFormFileCollection files = request.FileBinary;
             int countFiles = 0;
 
             if (files != null)
@@ -171,23 +188,23 @@ namespace ServicioWebApi.SistemaVentas.Controllers
 
             ARTICULO articulo = new ARTICULO()
             {
-                ACCION = modelo.accion,
-                ID_ARTICULO = modelo.idArticulo,
-                NOM_ARTICULO = modelo.nomArticulo,
-                NOM_VENTA = modelo.nomVenta,
-                PRECIO_COMPRA = modelo.precioCompra,
-                PRECIO_VENTA = modelo.precioBase,
-                FLG_IMPORTADO = modelo.flgImportado,
-                FLG_INACTIVO = modelo.flgInactivo,
-                ID_MARCA = modelo.idMarca,
-                ID_GRUPO = modelo.idGrupo,
-                ID_FAMILIA = modelo.idFamilia,
-                CODIGO_BARRA = modelo.codigoBarra,
-                STOCK_MINIMO = modelo.stockMinimo,
+                ACCION = request.Accion,
+                ID_ARTICULO = request.IdArticulo,
+                NOM_ARTICULO = request.NomArticulo,
+                NOM_VENTA = request.NomVenta,
+                PRECIO_COMPRA = request.PrecioCompra,
+                PRECIO_VENTA = request.PrecioBase,
+                FLG_IMPORTADO = request.FlgImportado,
+                FLG_INACTIVO = request.FlgInactivo,
+                ID_MARCA = request.IdMarca,
+                ID_GRUPO = request.IdGrupo,
+                ID_FAMILIA = request.IdFamilia,
+                CODIGO_BARRA = request.CodigoBarra,
+                STOCK_MINIMO = request.StockMinimo,
                 ID_USUARIO_REGISTRO = _idUsuario,
                 ID_SUCURSAL = _idSucursal,
-                JSON_SUCURSAL = modelo.sucursales,
-                JSON_UM = modelo.articulosUm,
+                JSON_SUCURSAL = request.Sucursales,
+                JSON_UM = request.ArticulosUm,
                 NOM_FOTO = namePhoto
             };
 
@@ -195,17 +212,17 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             //jsonFotos != "" => Si devuelve las fotos, será para borrarlas del directorio
             //flgMismaFoto == true => No seguirá con el proceso de guardado de foto en el directorio.)
             string jsonFotos = string.Empty;
-            _resultado = await Task.Run(() => _brArticulo.grabarArticulo(articulo, ref idArticulo, ref jsonFotos, ref flgMismaFoto));
+            _resultado = await Task.Run(() => _brArticulo.Register(articulo, ref idArticulo, ref jsonFotos, ref flgMismaFoto));
 
             //Si el grabado fue exitoso, guardamos tambien las fotos en el directorio.
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
             try
             {
-                if (modelo.accion == "UPD")
+                if (request.Accion == "UPD")
                 {
-                    idArticulo = modelo.idArticulo;
+                    idArticulo = request.IdArticulo;
 
                     if (flgMismaFoto)
                         countFiles = 0;
@@ -213,7 +230,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                     {
                         //Elimina las fotos del directorio
                         if (!string.IsNullOrEmpty(jsonFotos))
-                            BrFotos.deleteFotosDirectory(jsonFotos, Path.Combine(_environment.WebRootPath, Configuraciones.UPLOAD_ARTICULOS));
+                            BrFotos.DeleteDirectory(jsonFotos, Path.Combine(_environment.WebRootPath, Configuraciones.UPLOAD_ARTICULOS));
                     }
                 }
 
@@ -245,13 +262,13 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                         ID_USUARIO_REGISTRO = _idUsuario
                     };
                     //Proceso de guardado de fotos en bd y creacion de imagenes según las escalas indicadas.
-                    resultFoto = await Task.Run(() => brFoto.procesoGrabadoFotos(uri, medidas, oFoto, extension));
+                    resultFoto = await Task.Run(() => brFoto.ProcessSave(uri, medidas, oFoto, extension));
 
-                    if (!resultFoto.bResultado)
-                        throw new Exception(resultFoto.sMensaje);
+                    if (!resultFoto.Resultado)
+                        throw new Exception(resultFoto.Mensaje);
 
                     //Después crear la imágenes nuevas, eliminamos la imágen modelo.
-                    ImageHelper.deleteFile(uri);
+                    ImageHelper.DeleteFile(uri);
                 }
             }
             catch (Exception ex)
@@ -262,23 +279,23 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             return Ok(_resultado);
         }
 
-        [HttpPost("anularArticulo/{idArticulo}")]
-        public async Task<IActionResult> anularArticuloAsync(string idArticulo)
+        [HttpPost("Delete/{idArticulo}")]
+        public async Task<IActionResult> DeleteAsync(string idArticulo)
         {
-            _resultado = await Task.Run(() => _brArticulo.anularArticulo(idArticulo, _idUsuario));
+            _resultado = await Task.Run(() => _brArticulo.Delete(idArticulo, _idUsuario));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
             //Las fotos que se eliminaran el directorio
-            if (_resultado.data != null)
-                BrFotos.deleteFotosDirectory(_resultado.data.ToString(), Path.Combine(_environment.WebRootPath, Configuraciones.UPLOAD_ARTICULOS));
+            if (_resultado.Data != null)
+                BrFotos.DeleteDirectory(_resultado.Data.ToString(), Path.Combine(_environment.WebRootPath, Configuraciones.UPLOAD_ARTICULOS));
 
             return Ok(_resultado);
         }
 
-        [HttpGet("obtenerArticuloPorCodigo/{idArticulo}")]
-        public async Task<IActionResult> obtenerArticuloPorCodigoAsync(string idArticulo)
+        [HttpGet("GetById/{idArticulo}")]
+        public async Task<IActionResult> GetByIdAsync(string idArticulo)
         {
             ARTICULO articulo = null;
             List<object> listaFamilia = null;
@@ -288,31 +305,31 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             object modelo = null;
 
             //Obtenemos el artículo y algunas listas de la BD.
-            _resultado = await Task.Run(() => _brArticulo.articuloPorCodigo(_idSucursal, idArticulo));
+            _resultado = await Task.Run(() => _brArticulo.GetById(_idSucursal, idArticulo));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
-            if (_resultado.data == null)
+            if (_resultado.Data == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Datos no encontrados.", Status = "Error" });
 
-            articulo = (ARTICULO)_resultado.data;
+            articulo = (ARTICULO)_resultado.Data;
 
             //Lista de articulo_Um
             if (articulo.listaArticuloUm != null)
             {
                 listaArticuloUm = articulo.listaArticuloUm.Select(x => new
                 {
-                    idArticulo = x.ID_ARTICULO,
-                    idUm = x.ID_UM,
-                    nroFactor = x.NRO_FACTOR,
-                    nroOrden = x.NRO_ORDEN,
-                    flgPromocion = x.FLG_PROMOCION,
-                    descuento = x.DESCUENTO1,
-                    fecInicioPromocion = x.FEC_INICIO_PROMOCION,
-                    fecFinalPromocion = x.FEC_FINAL_PROMOCION,
-                    precioVenta = x.PRECIO_VENTA,
-                    precioVentaFinal = x.PRECIO_VENTA_FINAL
+                    IdArticulo = x.ID_ARTICULO,
+                    IdUm = x.ID_UM,
+                    NroFactor = x.NRO_FACTOR,
+                    NroOrden = x.NRO_ORDEN,
+                    FlgPromocion = x.FLG_PROMOCION,
+                    Descuento = x.DESCUENTO1,
+                    FecInicioPromocion = x.FEC_INICIO_PROMOCION,
+                    FecFinalPromocion = x.FEC_FINAL_PROMOCION,
+                    PrecioVenta = x.PRECIO_VENTA,
+                    PrecioVentaFinal = x.PRECIO_VENTA_FINAL
                 }).ToList<object>();
             }
 
@@ -321,28 +338,28 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 listaSucursal = articulo.listaSucursal.Select(x => new
                 {
-                    flgEnUso = x.FLG_EN_USO,
-                    nomAlmacen = x.NOM_ALMACEN,
-                    stockActual = x.STOCK_ACTUAL,
-                    idSucursal = x.ID_SUCURSAL,
-                    nomSucursal = x.NOM_SUCURSAL,
-                    direccion = $"{x.DIRECCION} {x.NOM_UBIGEO}",
+                    FlgEnUso = x.FLG_EN_USO,
+                    NomAlmacen = x.NOM_ALMACEN,
+                    StockActual = x.STOCK_ACTUAL,
+                    IdSucursal = x.ID_SUCURSAL,
+                    NomSucursal = x.NOM_SUCURSAL,
+                    Direccion = $"{x.DIRECCION} {x.NOM_UBIGEO}",
                 }).ToList<object>();
             }
 
             ResultadoOperacion _resultFamilia = new ResultadoOperacion();
-            BrFamilia _brFamilia = new BrFamilia();
+            BrFamilia _brFamilia = new BrFamilia(_configuration);
 
             //Obtenemos las familias por idGrupo de la BD.
-            _resultFamilia = _brFamilia.cboFamilia(articulo.ID_GRUPO);
+            _resultFamilia = _brFamilia.GetAllByGroupIdHelper(articulo.ID_GRUPO);
 
-            if (!_resultFamilia.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultFamilia.sMensaje, Status = "Error" });
+            if (!_resultFamilia.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultFamilia.Mensaje, Status = "Error" });
 
-            if (_resultFamilia.data != null)
+            if (_resultFamilia.Data != null)
             {
-                List<FAMILIA> familias = (List<FAMILIA>)_resultFamilia.data;
-                listaFamilia = familias.Select(x => new { idFamilia = x.ID_FAMILIA, nomFamilia = x.NOM_FAMILIA }).ToList<object>();
+                List<FAMILIA> familias = (List<FAMILIA>)_resultFamilia.Data;
+                listaFamilia = familias.Select(x => new { IdFamilia = x.ID_FAMILIA, NomFamilia = x.NOM_FAMILIA }).ToList<object>();
             }
 
             ResultadoOperacion _resultUm = new ResultadoOperacion();
@@ -351,101 +368,91 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             //Obtenemos las um_familia por idGrupo y idFamilia de la BD.
             if (!string.IsNullOrEmpty(articulo.ID_GRUPO) && !string.IsNullOrEmpty(articulo.ID_FAMILIA))
             {
-                _resultUm = _brUm.listaUmPorFamilia(articulo.ID_GRUPO, articulo.ID_FAMILIA);
+                _resultUm = _brUm.GetAllByFamilyId(articulo.ID_GRUPO, articulo.ID_FAMILIA);
 
-                if (!_resultUm.bResultado)
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultFamilia.sMensaje, Status = "Error" });
+                if (!_resultUm.Resultado)
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultFamilia.Mensaje, Status = "Error" });
 
-                if (_resultUm.data != null)
+                if (_resultUm.Data != null)
                 {
-                    List<UNIDAD_MEDIDA> ums = (List<UNIDAD_MEDIDA>)_resultUm.data;
-                    listaUm = ums.Select(x => new { idUm = x.ID_UM, nomUm = x.NOM_UM }).ToList<object>();
+                    List<UNIDAD_MEDIDA> ums = (List<UNIDAD_MEDIDA>)_resultUm.Data;
+                    listaUm = ums.Select(x => new { IdUm = x.ID_UM, NomUm = x.NOM_UM }).ToList<object>();
                 }
             }
 
             //Modelo de artículo.
             modelo = new
             {
-                idArticulo = articulo.ID_ARTICULO,
-                nomArticulo = articulo.NOM_ARTICULO,
-                nomVenta = articulo.NOM_VENTA,
-                codigoBarra = articulo.CODIGO_BARRA,
-                idMarca = articulo.ID_MARCA,
-                nomMarca = articulo.NOM_MARCA,
-                idGrupo = articulo.ID_GRUPO,
-                idFamilia = articulo.ID_FAMILIA,
-                precioVenta = articulo.PRECIO_VENTA,
-                precioCompra = articulo.PRECIO_COMPRA,
-                stockMinimo = articulo.STOCK_MINIMO,
-                flgImportado = articulo.FLG_IMPORTADO,
-                flgInactivo = articulo.FLG_INACTIVO,
-                foto1 = articulo.FOTO1,
-                foto2 = articulo.FOTO2,
-                fotoB64 = articulo.FOTO_B64
+                IdArticulo = articulo.ID_ARTICULO,
+                NomArticulo = articulo.NOM_ARTICULO,
+                NomVenta = articulo.NOM_VENTA,
+                CodigoBarra = articulo.CODIGO_BARRA,
+                IdMarca = articulo.ID_MARCA,
+                NomMarca = ViewHelper.capitalizeAll(articulo.NOM_MARCA),
+                IdGrupo = articulo.ID_GRUPO,
+                IdFamilia = articulo.ID_FAMILIA,
+                PrecioVenta = articulo.PRECIO_VENTA,
+                PrecioCompra = articulo.PRECIO_COMPRA,
+                StockMinimo = articulo.STOCK_MINIMO,
+                FlgImportado = articulo.FLG_IMPORTADO,
+                FlgInactivo = articulo.FLG_INACTIVO,
+                Foto1 = articulo.FOTO1,
+                Foto2 = articulo.FOTO2,
+                FotoB64 = articulo.FOTO_B64
             };
 
             //modelo y listas a devolver
-            _resultado.data = new
+            _resultado.Data = new
             {
-                modelo,
-                listaArticuloUm,
-                listaFamilia,
-                listaUm,
-                listaSucursal
+                Modelo = modelo,
+                ListaArticuloUm = listaArticuloUm,
+                ListaFamilia = listaFamilia,
+                ListaUm = listaUm,
+                ListaSucursal = listaSucursal
             };
 
             return Ok(_resultado);
         }
 
-        [HttpGet("listaArticulosGeneral")]
-        public async Task<IActionResult> listaArticulosGeneralAsync([FromQuery] string tipoFiltro = "", [FromQuery] string filtro = "", [FromQuery] string accion = "")
+        [HttpGet("GetAllByFiltersHelper")]
+        public async Task<IActionResult> GetAllByFiltersHelperAsync([FromQuery] string tipoFiltro = "", [FromQuery] string filtro = "", [FromQuery] string accion = "")
         {
-            MONEDA moneda = null;
-            _resultado = await Task.Run(() => _brArticulo.listaArticulosGeneral(accion, _idSucursal, tipoFiltro, filtro, ref moneda));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            _resultado = await Task.Run(() => _brArticulo.GetAllByFiltersHelper(accion, _idSucursal, tipoFiltro, filtro));
 
-            if (_resultado.data == null)
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
+
+            if (_resultado.Data == null)
                 return NotFound(new { Message = "No se encontraron datos.", Status = "Error" });
 
-            List<ARTICULO> lista = (List<ARTICULO>)_resultado.data;
+            List<ARTICULO> lista = (List<ARTICULO>)_resultado.Data;
 
-            _resultado.data = new
+            _resultado.Data = lista.Select(x => new
             {
-                lista = lista.Select(x => new
+                IdArticulo = x.ID_ARTICULO,
+                Codigo = string.IsNullOrEmpty(x.CODIGO_BARRA) ? x.ID_ARTICULO : x.CODIGO_BARRA,
+                NomArticulo = ViewHelper.capitalizeAll(x.NOM_ARTICULO),
+                NomMarca = ViewHelper.capitalizeAll(x.NOM_MARCA),
+                NomUm = ViewHelper.capitalizeAll(x.NOM_UM),
+                StockActual = x.STOCK_ACTUAL,
+                PrecioVentaFinal = x.PRECIO_VENTA_FINAL,
+                Descuento1 = x.DESCUENTO1,
+                IdUm = x.ID_UM,
+                NroFactor = x.NRO_FACTOR,
+                ListaUm = x.listaArticuloUm.Select(y => new
                 {
-                    idArticulo = x.ID_ARTICULO,
-                    codigo = string.IsNullOrEmpty(x.CODIGO_BARRA) ? x.ID_ARTICULO : x.CODIGO_BARRA,
-                    nomArticulo = x.NOM_ARTICULO,
-                    nomMarca = x.NOM_MARCA,
-                    nomUm = x.NOM_UM,
-                    stockActual = x.STOCK_ACTUAL,
-                    precioVentaFinal = x.PRECIO_VENTA_FINAL,
-                    descuento1 = x.DESCUENTO1,
-                    idUm = x.ID_UM,
-                    nroFactor = x.NRO_FACTOR,
-                    unidadMedidas = x.listaArticuloUm.Select(y => new
-                    {
-                        value = y.ID_UM,
-                        text = y.NOM_UM,
-                        nroFactor = y.NRO_FACTOR,
-                        descuento1 = y.DESCUENTO1,
-                        precioVenta = y.PRECIO_VENTA,
-                        precioVentaFinal = y.PRECIO_VENTA_FINAL
-                    }).ToList(),
-                    precioBase = x.PRECIO_BASE,
-                    precioVenta = x.PRECIO_VENTA,
-                    stockMinimo = x.STOCK_MINIMO
+                    IdUm = y.ID_UM,
+                    NomUm = ViewHelper.capitalizeAll(y.NOM_UM),
+                    NroFactor = y.NRO_FACTOR,
+                    Descuento1 = y.DESCUENTO1,
+                    PrecioVenta = y.PRECIO_VENTA,
+                    PrecioVentaFinal = y.PRECIO_VENTA_FINAL
                 }).ToList(),
-                moneda = new
-                {
-                    idMoneda = moneda.ID_MONEDA,
-                    nomMoneda = moneda.NOM_MONEDA,
-                    sgnMoneda = moneda.SGN_MONEDA,
-                    flgLocal = moneda.FLG_LOCAL
-                }
-            };
+                PrecioBase = x.PRECIO_BASE,
+                PrecioVenta = x.PRECIO_VENTA,
+                StockMinimo = x.STOCK_MINIMO
+            }).ToList();
 
             return Ok(_resultado);
         }

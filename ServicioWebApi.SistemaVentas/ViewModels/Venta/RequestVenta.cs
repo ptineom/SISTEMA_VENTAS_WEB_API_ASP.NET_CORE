@@ -7,39 +7,39 @@ namespace SistemaVentas.WebApi.ViewModels.Venta
 {
     public class RequestVenta
     {
-        public string idTipoComprobante { get; set; }
-        public string nroSerie { get; set; }
-        public string nroDocumento { get; set; }
-        public string idCliente { get; set; }
-        public string idMoneda { get; set; }
-        public string fecDocumento { get; set; }
-        public string horDocumento { get; set; }
-        public string fecVencimiento { get; set; }
-        public string obsVenta { get; set; }
-        public decimal totBruto { get; set; }
-        public decimal totDescuento { get; set; }
-        public decimal totImpuesto { get; set; }
-        public decimal totVenta { get; set; }
-        public decimal tasDescuento { get; set; }
-        public string idTipoPago { get; set; }
-        public string idTipoCondicionPago { get; set; }
-        public decimal abono { get; set; }
-        public decimal saldo { get; set; }
-        public string idCajaCa { get; set; }
-        public string idUsuarioCa { get; set; }
-        public int correlativoCa { get; set; }
-        public List<RequestVentaDetalle> detalleVenta { get; set; }
+        public string IdTipoComprobante { get; set; }
+        public string NroSerie { get; set; }
+        public string NroDocumento { get; set; }
+        public string IdCliente { get; set; }
+        public string IdMoneda { get; set; }
+        public string FecDocumento { get; set; }
+        public string HorDocumento { get; set; }
+        public string FecVencimiento { get; set; }
+        public string ObsVenta { get; set; }
+        public decimal TotBruto { get; set; }
+        public decimal TotDescuento { get; set; }
+        public decimal TotImpuesto { get; set; }
+        public decimal TotVenta { get; set; }
+        public decimal TasDescuento { get; set; }
+        public string IdTipoPago { get; set; }
+        public string IdTipoCondicionPago { get; set; }
+        public decimal Abono { get; set; }
+        public decimal Saldo { get; set; }
+        public string IdCajaCa { get; set; }
+        public string IdUsuarioCa { get; set; }
+        public int CorrelativoCa { get; set; }
+        public List<RequestVentaDetalle> DetalleVenta { get; set; }
     }
 
     public class RequestVentaDetalle
     {
-        public string idArticulo { get; set; }
-        public decimal cantidad { get; set; }
-        public string idUm { get; set; }
-        public decimal nroFactor { get; set; }
-        public decimal precioBase { get; set; }
-        public decimal tasDescuento { get; set; }
-        public decimal tasIgv { get; set; }
-        public decimal importe { get; set; }
+        public string IdArticulo { get; set; }
+        public decimal Cantidad { get; set; }
+        public string IdUm { get; set; }
+        public decimal NroFactor { get; set; }
+        public decimal PrecioBase { get; set; }
+        public decimal TasDescuento { get; set; }
+        public decimal TasIgv { get; set; }
+        public decimal Importe { get; set; }
     }
 }

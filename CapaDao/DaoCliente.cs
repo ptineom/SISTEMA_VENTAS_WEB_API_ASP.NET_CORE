@@ -7,7 +7,7 @@ namespace CapaDao
 {
     public class DaoCliente
     {
-        public List<CLIENTE> listaClientes(SqlConnection con, string tipoFiltro, string filtro, bool flgConInactivos)
+        public List<CLIENTE> GetAllByFilters(SqlConnection con, string tipoFiltro, string filtro, bool flgConInactivos)
         {
             List<CLIENTE> lista = null;
             CLIENTE modelo = null;
@@ -46,7 +46,7 @@ namespace CapaDao
             return lista;
         }
 
-        public CLIENTE clientePorCodigo(SqlConnection con, string idCliente)
+        public CLIENTE GetById(SqlConnection con, string idCliente)
         {
             CLIENTE modelo = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CLIENTE", con))
@@ -87,7 +87,7 @@ namespace CapaDao
             return modelo;
         }
 
-        public bool grabarCliente(SqlConnection con, SqlTransaction trx, CLIENTE oModelo)
+        public bool Register(SqlConnection con, SqlTransaction trx, CLIENTE oModelo)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CLIENTE", con, trx))
@@ -133,7 +133,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public bool anularCliente(SqlConnection con, SqlTransaction trx, string idCliente, string idUsuario)
+        public bool Delete(SqlConnection con, SqlTransaction trx, string idCliente, string idUsuario)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CLIENTE", con, trx))
@@ -149,7 +149,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public CLIENTE clientePorDocumento(SqlConnection con, int idTipoDocumento, string nroDocumento)
+        public CLIENTE GetByDocument(SqlConnection con, int idTipoDocumento, string nroDocumento)
         {
             CLIENTE modelo = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CLIENTE", con))

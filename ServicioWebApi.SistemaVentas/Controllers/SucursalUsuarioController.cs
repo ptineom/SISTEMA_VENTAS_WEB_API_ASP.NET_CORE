@@ -17,9 +17,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
     [ApiController]
     public class SucursalUsuarioController : ControllerBase
     {
-        private IConfiguration _configuration { get; }
-        public IHttpContextAccessor _accessor { get; set; }
-        private IResultadoOperacion _resultado { get; set; }
+        private IConfiguration _configuration = null;
+        public IHttpContextAccessor _accessor = null;
+        private IResultadoOperacion _resultado = null;
         private BrSucursalUsuario oBrSucursalUsuario = null;
 
         public SucursalUsuarioController(IResultadoOperacion resultado, IConfiguration configuration, IHttpContextAccessor accessor)
@@ -30,41 +30,41 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             oBrSucursalUsuario = new BrSucursalUsuario();
         }
 
-        [HttpGet("listaSucursalPorUsuarioAsync/{idUsuario?}")]
+        [HttpGet("GetSucursalesByUserId/{idUsuario?}")]
         [AllowAnonymous]
-        public async Task<IActionResult> listaSucursalPorUsuarioAsync(string idUsuario)
+        public async Task<IActionResult> GetSucursalesByUserIdAsync(string idUsuario)
         {
             //Lista de sucursales por usuario.
-            _resultado = await Task.Run(() => oBrSucursalUsuario.listaSucursalPorUsuario(idUsuario));
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            _resultado = await Task.Run(() => oBrSucursalUsuario.GetSucursalesByUserId(idUsuario));
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
             return Ok(_resultado);
         }
 
-        [HttpPost("cambiarSucursal")]
-        public IActionResult cambiarSucursal([FromBody] RequestCambiarSucursalViewModel sucursal)
+        [HttpPost("ChangeSucursal")]
+        public IActionResult ChangeSucursal([FromBody] RequestCambiarSucursalViewModel sucursal)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
 
             //Obtenemos el usuario en sessión.
-            UsuarioViewModel userCurrent = new Session(_accessor).obtenerUsuarioLogueado();
+            UsuarioViewModel userCurrent = new Session(_accessor).GetUserLogged();
 
             //Generamos el accessToken y refreshToken.
             TokenGenerator tokenGenerator = new TokenGenerator(_configuration);
-            TokensViewModel tokens = tokenGenerator.getTokens(new UsuarioViewModel()
+            TokensViewModel tokens = tokenGenerator.GetTokens(new UsuarioViewModel()
             {
-                idUsuario = userCurrent.idUsuario,
-                nomUsuario = userCurrent.nomUsuario,
-                nomRol = userCurrent.nomRol,
-                idSucursal = sucursal.idSucursal,
-                nomSucursal = sucursal.nomSucursal,
-                flgCtrlTotal = userCurrent.flgCtrlTotal,
-                ipAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString()
+                IdUsuario = userCurrent.IdUsuario,
+                NomUsuario = userCurrent.NomUsuario,
+                NomRol = userCurrent.NomRol,
+                IdSucursal = sucursal.IdSucursal,
+                NomSucursal = sucursal.NomSucursal,
+                FlgCtrlTotal = userCurrent.FlgCtrlTotal,
+                IpAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString()
             });
 
-            _resultado.SetResultado(true, "", tokens);
+            _resultado.SetResultado(true, "", new { Token = tokens.AccessToken,  tokens.RefreshToken});
 
             return Ok(_resultado);
         }

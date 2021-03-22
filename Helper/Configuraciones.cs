@@ -12,7 +12,7 @@ namespace Helper
         {
             get
             {
-                return Convert.ToInt32(ViewHelper.getValueConfiguration("APP_SETTINGS:TAMANIO_MAX_ARCHIVO_MB"));
+                return Convert.ToInt32(ViewHelper.getValueConfiguration("AppSettings:TamanioMaxArchiboMb"));
             }
 
         }
@@ -21,7 +21,7 @@ namespace Helper
         {
             get
             {
-                return ViewHelper.getValueConfiguration("APP_SETTINGS:DOMINIO_WEB_API").Replace("/", @"\");
+                return ViewHelper.getValueConfiguration("AppSettings:DominioWebApi").Replace("/", @"\");
             }
         }
 
@@ -29,7 +29,7 @@ namespace Helper
         {
             get
             {
-                return ViewHelper.getValueConfiguration("APP_SETTINGS:UPLOAD:ARTICULOS").Replace("/", @"\");
+                return ViewHelper.getValueConfiguration("AppSettings:Upload:Articulos").Replace("/", @"\");
             }
         }
 
@@ -37,7 +37,7 @@ namespace Helper
         {
             get
             {
-                return ViewHelper.getValueConfiguration("APP_SETTINGS:UPLOAD:EMPLEADOS").Replace("/", @"\");
+                return ViewHelper.getValueConfiguration("AppSettings:Upload:Empleados").Replace("/", @"\");
             }
         }
 
@@ -45,14 +45,14 @@ namespace Helper
         {
             get
             {
-                return ViewHelper.getValueConfiguration("APP_SETTINGS:UPLOAD:EMPRESA").Replace("/", @"\");
+                return ViewHelper.getValueConfiguration("AppSettings:Upload:Empresa").Replace("/", @"\");
             }
         }
         public static int[] SCALES_IMAGES_ARTICULOS
         {
             get
             {
-                string[] scales = ViewHelper.getValueConfiguration("APP_SETTINGS:SCALES_IMAGES_ARTICULOS").Split(',');
+                string[] scales = ViewHelper.getValueConfiguration("AppSettings:ScalesImagesArticulos").Split(',');
                 return scales.Select(int.Parse).ToArray().OrderByDescending(x => x).ToArray();
             }
         }

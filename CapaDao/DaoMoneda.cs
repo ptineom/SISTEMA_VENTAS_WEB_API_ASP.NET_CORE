@@ -11,7 +11,7 @@ namespace CapaDao
 {
     public class DaoMoneda
     {
-        public List<MONEDA> listaMonedas(SqlConnection con  )
+        public List<MONEDA> GetAll(SqlConnection con  )
         {
             List<MONEDA> lista = null;
             MONEDA modelo = null;

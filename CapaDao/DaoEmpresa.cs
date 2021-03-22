@@ -10,7 +10,8 @@ namespace CapaDao
 {
     public class DaoEmpresa
     {
-        public bool grabarEmpresa(SqlConnection con, SqlTransaction trx, EMPRESA oModelo, ref string idEmpresa, ref string xmlFotos)
+        public bool Register(SqlConnection con, SqlTransaction trx, EMPRESA oModelo, ref string idEmpresa, 
+            ref string jsonFotos)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_EMPRESA", con, trx))
@@ -32,7 +33,7 @@ namespace CapaDao
                 cmd.Parameters.Add("@STOCK_MINIMO", SqlDbType.Decimal).Value = oModelo.STOCK_MINIMO == 0 ? (object)DBNull.Value : oModelo.STOCK_MINIMO;
                 cmd.Parameters.Add("@MONTO_BOLETA_OBLIGATORIO_CLIENTE", SqlDbType.Decimal).Value = oModelo.MONTO_BOLETA_OBLIGATORIO_CLIENTE == 0 ? (object)DBNull.Value : oModelo.MONTO_BOLETA_OBLIGATORIO_CLIENTE;
                 cmd.Parameters.Add("@ID_USUARIO_REGISTRO", SqlDbType.VarChar, 20).Value = oModelo.ID_USUARIO_REGISTRO;
-                cmd.Parameters.Add("@XML_FOTOS", SqlDbType.Xml).Direction = ParameterDirection.Output;
+                cmd.Parameters.Add("@JSON_FOTOS", SqlDbType.VarChar, -1).Direction = ParameterDirection.Output;
 
                 cmd.ExecuteNonQuery();
                 bExito = true;
@@ -42,13 +43,13 @@ namespace CapaDao
                 }
                 else if (oModelo.ACCION == "UPD")
                 {
-                    xmlFotos = cmd.Parameters["@XML_FOTOS"].Value.ToString();
+                    jsonFotos = cmd.Parameters["@JSON_FOTOS"].Value.ToString();
                 }
             }
             return bExito;
         }
 
-        public EMPRESA obtenerEmpresa(SqlConnection con, string idSucursal, bool flgMostrarSucursales = false)
+        public EMPRESA GetByFilters(SqlConnection con, string idSucursal, bool flgMostrarSucursales = false)
         {
             EMPRESA modelo = null;
             List<SUCURSAL> sucursales = null;

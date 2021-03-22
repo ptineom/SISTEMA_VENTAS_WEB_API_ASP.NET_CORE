@@ -10,7 +10,7 @@ namespace CapaDao
 {
     public class DaoFotos
     {
-        public bool grabarFotos(SqlConnection con, SqlTransaction trx, FOTOS oModelo)
+        public bool Register(SqlConnection con, SqlTransaction trx, FOTOS oModelo)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_FOTOS", con, trx))

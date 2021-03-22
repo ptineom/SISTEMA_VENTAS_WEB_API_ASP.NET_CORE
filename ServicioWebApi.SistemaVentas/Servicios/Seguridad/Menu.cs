@@ -2,6 +2,7 @@
 using Entidades;
 using Helper;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using SistemaVentas.WebApi.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,13 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
 {
     public class Menu
     {
-        public IWebHostEnvironment _environment { get; set; }
+        private IConfiguration _configuration = null;
+        private IWebHostEnvironment _environment = null;
         private ResultadoOperacion _resultado = null;
-        public Menu(IWebHostEnvironment environment)
+
+        public Menu(IWebHostEnvironment environment, IConfiguration configuration)
         {
+            _configuration = configuration;
             _environment = environment;
             _resultado = new ResultadoOperacion();
         }
@@ -27,22 +31,22 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
         /// </summary>
         /// <param name="idUsuario">Usuario por el que se hará el filtrado del los menús</param>
         /// <returns></returns>
-        public MenuItem obtenerMenuPorUsuario(string idUsuario)
+        public MenuItem GetMenuByUserId(string idUsuario)
         {
-            BrAplicacion brAplicacion = new BrAplicacion();
+            BrAplicacion brAplicacion = new BrAplicacion(_configuration);
 
             //Obtenemos la lista de menu según el usuario.
-            _resultado = brAplicacion.listarMenuUsuario(idUsuario);
+            _resultado = brAplicacion.GetMenuByUserId(idUsuario);
 
-            if (!_resultado.bResultado)
-                throw new Exception(_resultado.sMensaje);
+            if (!_resultado.Resultado)
+                throw new Exception(_resultado.Mensaje);
 
             //Construímos el menú a requerimiento del cliente.
             MenuItem menuItem = null;
-            if (_resultado.data != null)
+            if (_resultado.Data != null)
             {
                 menuItem = new MenuItem();
-                List<APLICACION> listaGeneral = (List<APLICACION>)_resultado.data;
+                List<APLICACION> listaGeneral = (List<APLICACION>)_resultado.Data;
 
                 //Raiz del arbol el cual dará inicio.
                 APLICACION aplicacionRaiz = listaGeneral.FirstOrDefault(x => x.FLG_RAIZ);
@@ -51,7 +55,7 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
                 setChildren(aplicacionRaiz, listaGeneral, menuItem);
 
                 //Marcamos a los primeros hijos como raiz para la renderización en la vista.
-                menuItem.children.ForEach((elem) => elem.flgRaiz = true);
+                menuItem.Children.ForEach((elem) => elem.FlgRaiz = true);
             }
             return menuItem;
         }
@@ -83,10 +87,10 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
         #region "Métodos privados"
         private void setChildren(APLICACION aplicacion, List<APLICACION> listaGeneral, MenuItem menuItem)
         {
-            menuItem.label = aplicacion.NOM_APLICACION;
-            menuItem.icon = aplicacion.ICON_SPA;
-            menuItem.route = aplicacion.ROUTE_SPA;
-            menuItem.flgHome = aplicacion.FLG_HOME;
+            menuItem.Label = aplicacion.NOM_APLICACION;
+            menuItem.Icon = aplicacion.ICON_SPA;
+            menuItem.Route = aplicacion.ROUTE_SPA;
+            menuItem.FlgHome = aplicacion.FLG_HOME;
 
             if (aplicacion.FLG_FORMULARIO && !string.IsNullOrEmpty(aplicacion.BREADCRUMS))
             {
@@ -102,7 +106,7 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
                     };
                     breadCrums.Add(obj);
                 }
-                menuItem.breadcrumbs = breadCrums;
+                menuItem.Breadcrumbs = breadCrums;
             }
             //Si tiene hijos ejeuta la recursividad
             var childs = listaGeneral.Where(x => x.ID_APLICACION_PADRE == aplicacion.ID_APLICACION).ToList();
@@ -115,7 +119,7 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
                     setChildren(child, listaGeneral, subMenu);
                     listaSubMenu.Add(subMenu);
                 };
-                menuItem.children = listaSubMenu;
+                menuItem.Children = listaSubMenu;
             }
         }
 

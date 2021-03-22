@@ -28,7 +28,7 @@ namespace CapaNegocio
                     var lista = dao.listaTipoMovimiento(con);
                     if (lista != null)
                     {
-                        resultado.data = lista;// lista.ToList<Object>();
+                        resultado.Data = lista;// lista.ToList<Object>();
                     }
                     resultado.SetResultado(true, "");
                 }

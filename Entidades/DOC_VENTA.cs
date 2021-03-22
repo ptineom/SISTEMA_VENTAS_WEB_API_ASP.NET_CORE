@@ -50,7 +50,7 @@ namespace Entidades
         public string COMPROBANTE { get; set; }
         public string DOC_CLIENTE { get; set; }
         public string NOM_CLIENTE { get; set; }
-        public bool FLG_NO_EVALUA_CREDITO { get; set; }
+        public bool FLG_EVALUA_CREDITO { get; set; }
         public string NOM_TIPO_CONDICION_PAGO { get; set; }
         public string NOM_ESTADO { get; set; }
         public string SGN_MONEDA { get; set; }

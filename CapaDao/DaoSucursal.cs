@@ -10,7 +10,7 @@ namespace CapaDao
 {
     public class DaoSucursal
     {
-        public List<SUCURSAL> listaSucursales(SqlConnection con)
+        public List<SUCURSAL> GetAll(SqlConnection con)
         {
             List<SUCURSAL> lista = null;
             SUCURSAL modelo = null;
@@ -47,7 +47,7 @@ namespace CapaDao
             }
             return lista;
         }
-        public bool grabarSucursal(SqlConnection con, SqlTransaction trx, SUCURSAL oModelo)
+        public bool Register(SqlConnection con, SqlTransaction trx, SUCURSAL oModelo)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_SEDE", con, trx))
@@ -71,7 +71,7 @@ namespace CapaDao
             }
             return bExito;
         }
-        public void obtenerSucursalPorCodigo(SqlConnection con,string idSucursal, ref List<UBIGEO> listaProvincia, ref List<UBIGEO> listaDistrito)
+        public void GetById(SqlConnection con,string idSucursal, ref List<UBIGEO> listaProvincia, ref List<UBIGEO> listaDistrito)
         {
             UBIGEO oProvincia = null;
             UBIGEO oDistrito = null;
@@ -113,7 +113,7 @@ namespace CapaDao
                 reader.Dispose();
             }
         }
-        public bool anularSucursal(SqlConnection con, SqlTransaction trx, string idSucursal, string idUsuario)
+        public bool Delete(SqlConnection con, SqlTransaction trx, string idSucursal, string idUsuario)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_SEDE", con, trx))

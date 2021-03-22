@@ -1,7 +1,9 @@
 ﻿using CapaNegocio;
 using Entidades;
+using Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using ServicioWebApi.SistemaVentas.ViewModels;
 using SistemaVentas.WebApi.Servicios.Seguridad;
 using SistemaVentas.WebApi.ViewModels.Seguridad;
@@ -16,54 +18,59 @@ namespace ServicioWebApi.SistemaVentas.Controllers
     [ApiController]
     public class MarcaController : ControllerBase
     {
+        private IConfiguration _configuration = null;
         private BrMarca _brMarca = null;
         private IResultadoOperacion _resultado = null;
         private string _idUsuario;
         private string _idSucursal;
-        public IHttpContextAccessor _accessor { get; set; }
+        public IHttpContextAccessor _accessor = null;
 
-        public MarcaController(IResultadoOperacion resultado, IHttpContextAccessor accessor)
+        public MarcaController(IConfiguration configuration, IResultadoOperacion resultado, IHttpContextAccessor accessor)
         {
-            _brMarca = new BrMarca();
+            _configuration = configuration;
+            _brMarca = new BrMarca(_configuration);
             _resultado = resultado;
             _accessor = accessor;
 
-            UsuarioViewModel usuario = new Session(_accessor).obtenerUsuarioLogueado();
-            _idUsuario = usuario.idUsuario;
-            _idSucursal = usuario.idSucursal;
+            UsuarioViewModel usuario = new Session(_accessor).GetUserLogged();
+            _idUsuario = usuario.IdUsuario;
+            _idSucursal = usuario.IdSucursal;
         }
 
-        [HttpGet("listaMarca/{nomMarca}")]
-        public async Task<IActionResult> listaMarcaAsync(string nomMarca)
+        [HttpGet("GetAllByDescription/{nomMarca}")]
+        public async Task<IActionResult> GetAllByDescriptionAsync(string nomMarca)
         {
-            _resultado = await Task.Run(() => _brMarca.listaMarcas(nomMarca));
+            _resultado = await Task.Run(() => _brMarca.GetAllByDescription(nomMarca));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
-            if (_resultado.data == null)
+            if (_resultado.Data == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Datos no encontrado.", Status = "Error" });
 
-            _resultado.data = ((List<MARCA>)_resultado.data).Select(x => new
+            _resultado.Data = ((List<MARCA>)_resultado.Data).Select(x => new
             {
-                idMarca = x.ID_MARCA,
-                nomMarca = x.NOM_MARCA
+                IdMarca = x.ID_MARCA,
+                NomMarca = ViewHelper.capitalizeAll(x.NOM_MARCA)
             });
 
             return Ok(_resultado);
         }
 
-        [HttpPost("grabarMarca")]
-        public async Task<IActionResult> grabarMarcaAsync(RequestMarca modelo)
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterAsync(RequestMarca request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
 
-            _resultado = await Task.Run(() => _brMarca.grabarMarca(new MARCA(){
-                NOM_MARCA = modelo.nomMarca,
+            _resultado = await Task.Run(() => _brMarca.Register(new MARCA(){
+                NOM_MARCA = request.NomMarca,
                 ID_USUARIO_REGISTRO = _idUsuario,
                 ACCION = "INS"
             }));
+
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
             return Ok(_resultado);
         }

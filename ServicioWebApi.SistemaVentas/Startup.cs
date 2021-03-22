@@ -34,7 +34,7 @@ namespace ServicioWebApi.SistemaVentas
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            ////Por defecto el api, retorna los atributos del json en camelCase, pero configuremos para que respete los nombres de los atributos del json.
+            ////Por defecto el api, retorna los atributos del json en LowercamelCase, pero configuremos para que respete los nombres de los atributos del json.
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
             //     .AddJsonOptions(opt => opt.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
@@ -78,9 +78,9 @@ namespace ServicioWebApi.SistemaVentas
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["APP_SETTINGS:JWT:JWT_ISSUER_TOKEN"],
-                    ValidAudience = Configuration["APP_SETTINGS:JWT:JWT_AUDIENCE_TOKEN"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(HashHelper.GetHash256(Configuration["APP_SETTINGS:JWT:JWT_SECRET_KEY"])))
+                    ValidIssuer = Configuration["AppSettings:Jwt:IssuerToken"],
+                    ValidAudience = Configuration["AppSettings:Jwt:AudienceToken"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(HashHelper.GetHash256(Configuration["AppSettings:Jwt:SecretKey"])))
                 };
             });
 

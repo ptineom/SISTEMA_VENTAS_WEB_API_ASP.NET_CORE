@@ -7,7 +7,7 @@ namespace CapaDao
 {
     public class DaoMarca
     {
-        public List<MARCA> listaMarcas(SqlConnection con, string nomMarca)
+        public List<MARCA> GetAllByDescription(SqlConnection con, string nomMarca)
         {
             List<MARCA> lista = null;
             MARCA modelo = null;
@@ -36,7 +36,7 @@ namespace CapaDao
             }
             return lista;
         }
-        public bool grabarMarca(SqlConnection con, SqlTransaction trx, MARCA oModelo, ref int idMarca)
+        public bool Register(SqlConnection con, SqlTransaction trx, MARCA oModelo, ref int idMarca)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_MARCA", con, trx))
@@ -59,7 +59,7 @@ namespace CapaDao
             }
             return bExito;
         }
-        public bool anularMarca(SqlConnection con, SqlTransaction trx, int idMarca, string idUsuario)
+        public bool Delete(SqlConnection con, SqlTransaction trx, int idMarca, string idUsuario)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_MARCA", con, trx))

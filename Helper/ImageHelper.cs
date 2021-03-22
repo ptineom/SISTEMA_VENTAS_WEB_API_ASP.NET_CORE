@@ -234,7 +234,7 @@ namespace Helper
         }
 
 
-        public static void deleteFile(string uri)
+        public static void DeleteFile(string uri)
         {
             if (System.IO.File.Exists(uri))
                 System.IO.File.Delete(uri);

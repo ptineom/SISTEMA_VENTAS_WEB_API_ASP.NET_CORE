@@ -12,27 +12,14 @@ namespace SistemaVentas.WebApi.Servicios.Seguridad
 {
     public class Session
     {
-        private IHttpContextAccessor _accessor { get; }
+        private IHttpContextAccessor _accessor;
 
         public Session(IHttpContextAccessor accessor)
         {
             _accessor = accessor;
         }
 
-        public static bool existUserInSessionStatic()
-        {
-            bool bExiste = false;
-            IHttpContextAccessor httpContext = new HttpContextAccessor();
-
-            if (httpContext.HttpContext.User != null)
-            {
-                bExiste = httpContext.HttpContext.User.Identity.IsAuthenticated;
-            }
-
-            return bExiste;
-        }
-
-        public bool existUserInSession()
+        public bool ExistUserInSession()
         {
             bool bExiste = false;
 
@@ -44,7 +31,7 @@ namespace SistemaVentas.WebApi.Servicios.Seguridad
             return bExiste;
         }
 
-        public UsuarioViewModel obtenerUsuarioLogueado()
+        public UsuarioViewModel GetUserLogged()
         {
             UsuarioViewModel modelo = null;
             if (_accessor.HttpContext.User != null && _accessor.HttpContext.User.Identity.IsAuthenticated)
@@ -55,11 +42,11 @@ namespace SistemaVentas.WebApi.Servicios.Seguridad
                     var claims = identity.Claims;
                     modelo = new UsuarioViewModel
                     {
-                        idUsuario = claims.FirstOrDefault(x => x.Type == ClaimTypes.Name).Value,
-                        nomUsuario = claims.FirstOrDefault(x => x.Type == "fullName").Value,
-                        nomRol = claims.FirstOrDefault(x => x.Type == ClaimTypes.Role).Value,
-                        idSucursal = claims.FirstOrDefault(x => x.Type == "idSucursal").Value,
-                        flgCtrlTotal = Convert.ToBoolean(claims.FirstOrDefault( x => x.Type == "flgCtrlTotal").Value)
+                        IdUsuario = claims.FirstOrDefault(x => x.Type == ClaimTypes.Name).Value,
+                        NomUsuario = claims.FirstOrDefault(x => x.Type == "FullName").Value,
+                        NomRol = claims.FirstOrDefault(x => x.Type == ClaimTypes.Role).Value,
+                        IdSucursal = claims.FirstOrDefault(x => x.Type == "IdSucursal").Value,
+                        FlgCtrlTotal = Convert.ToBoolean(claims.FirstOrDefault( x => x.Type == "FlgCtrlTotal").Value)
                     };
                 }
             }

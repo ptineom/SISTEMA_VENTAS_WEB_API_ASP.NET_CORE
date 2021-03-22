@@ -2,6 +2,10 @@
 using Entidades;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using ServicioWebApi.SistemaVentas.ViewModels;
+using SistemaVentas.WebApi.Servicios.Seguridad;
+using SistemaVentas.WebApi.ViewModels.Seguridad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,69 +17,108 @@ namespace ServicioWebApi.SistemaVentas.Controllers
     [ApiController]
     public class ClienteController : ControllerBase
     {
-        private IResultadoOperacion _resultado { get; set; }
-        private BrCliente _brCliente { get; set; }
+        private IConfiguration _configuration = null;
+        private IHttpContextAccessor _accessor;
+        private IResultadoOperacion _resultado = null;
+        private BrCliente _brCliente = null;
+        private string _idSucursal;
+        private string _idUsuario;
 
-        public ClienteController(IResultadoOperacion resultado)
+        public ClienteController(IResultadoOperacion resultado, IConfiguration configuration, IHttpContextAccessor accessor)
         {
-            this._resultado = resultado;
-            this._brCliente = new BrCliente();
+            _configuration = configuration;
+            _resultado = resultado;
+            _brCliente = new BrCliente(_configuration);
+            _accessor = accessor;
+
+            UsuarioViewModel usuario = new Session(_accessor).GetUserLogged();
+            _idUsuario = usuario.IdUsuario;
+            _idSucursal = usuario.IdSucursal;
         }
 
-        [HttpGet("obtenerClientePorDocumentoAsync/{idTipoDocumento?}/{nroDocumento?}")]
-        public async Task<IActionResult> obtenerClientePorDocumentoAsync(int idTipoDocumento, string nroDocumento)
+        [HttpGet("GetByDocument/{idTipoDocumento?}/{nroDocumento?}")]
+        public async Task<IActionResult> GetByDocumentAsync(int idTipoDocumento, string nroDocumento)
         {
-            _resultado = await Task.Run(() => _brCliente.clientePorDocumento(idTipoDocumento, nroDocumento));
+            _resultado = await Task.Run(() => _brCliente.GetByDocument(idTipoDocumento, nroDocumento));
 
-            if (!_resultado.bResultado)
+            if (!_resultado.Resultado)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
             }
 
-            if (_resultado.data == null)
+            if (_resultado.Data == null)
             {
                 return NotFound(new { Message = "No se encontraron datos", Status = "Eror" });
             };
 
-            CLIENTE cliente = (CLIENTE)_resultado.data;
-            _resultado.data = new
+            CLIENTE cliente = (CLIENTE)_resultado.Data;
+            _resultado.Data = new
             {
-                idCliente = cliente.ID_CLIENTE,
-                nroDocumento = cliente.NRO_DOCUMENTO,
-                idTipoDocumento = cliente.ID_TIPO_DOCUMENTO,
-                nomCliente = cliente.NOM_CLIENTE,
-                dirCliente = cliente.DIR_CLIENTE
+                IdCliente = cliente.ID_CLIENTE,
+                NroDocumento = cliente.NRO_DOCUMENTO,
+                IdTipoDocumento = cliente.ID_TIPO_DOCUMENTO,
+                NomCliente = cliente.NOM_CLIENTE,
+                DirCliente = cliente.DIR_CLIENTE
             };
             return Ok(_resultado);
         }
 
-        [HttpGet("listaClientes/{tipoFiltro?}/{filtro?}/{flgConInactivos?}")]
-        public async Task<IActionResult> listaClientes(string tipoFiltro, string filtro, bool flgConInactivos = false)
+        [HttpGet("GetAllByFilters/{tipoFiltro?}/{filtro?}/{flgConInactivos?}")]
+        public async Task<IActionResult> GetAllByFilters(string tipoFiltro, string filtro, bool flgConInactivos = false)
         {
-            _resultado = await Task.Run(() => _brCliente.listaClientes(tipoFiltro, filtro, flgConInactivos));
+            _resultado = await Task.Run(() => _brCliente.GetAllByFilters(tipoFiltro, filtro, flgConInactivos));
 
-            if (!_resultado.bResultado)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
-            }
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
-            if (_resultado.data == null)
-            {
+            if (_resultado.Data == null)
                 return NotFound(new { Message = "No se encontraron datos", Status = "Eror" });
-            };
 
-            List<CLIENTE> lista = (List<CLIENTE>)_resultado.data;
+            List<CLIENTE> lista = (List<CLIENTE>)_resultado.Data;
 
 
-            _resultado.data = lista.Select(x => new
+            _resultado.Data = lista.Select(x => new
             {
-                idCliente = x.ID_CLIENTE,
-                nomCliente = x.NOM_CLIENTE,
-                nomTipoDocumento = x.ABREVIATURA,
-                nroDocumento = x.NRO_DOCUMENTO,
-                dirCliente = x.DIR_CLIENTE,
-                idTipoDocumento = x.ID_TIPO_DOCUMENTO
+                IdCliente = x.ID_CLIENTE,
+                NomCliente = x.NOM_CLIENTE,
+                NomTipoDocumento = x.ABREVIATURA,
+                NroDocumento = x.NRO_DOCUMENTO,
+                DirCliente = x.DIR_CLIENTE,
+                IdTipoDocumento = x.ID_TIPO_DOCUMENTO
             });
+
+            return Ok(_resultado);
+        }
+
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterAsync(RequestCliente request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Mesagge = ModelState, Status = "Error" });
+
+            _resultado = await Task.Run(() => _brCliente.Register(new CLIENTE()
+            {
+                ID_TIPO_DOCUMENTO= request.IdTipoDocumento,
+                NRO_DOCUMENTO = request.NroDocumento,
+                FLG_PERSONA_NATURAL = request.FlgPersonaNatural,
+                NOM_CLIENTE = request.RazonSocial,
+                CONTACTO = request.Contacto,
+                APELLIDO_PATERNO = request.ApellidoPaterno,
+                APELLIDO_MATERNO = request.ApellidoMaterno,
+                NOMBRES = request.Nombres,
+                SEXO = request.Sexo,
+                EMAIL_CLIENTE = request.Email,
+                TEL_CLIENTE = request.Telefono,
+                DIR_CLIENTE = request.Direccion,
+                ID_UBIGEO = string.IsNullOrEmpty(request.IdDistrito) ? "-1" : request.IdDistrito,
+                ID_USUARIO_REGISTRO = _idUsuario,
+                OBS_CLIENTE = request.Observacion,
+                FLG_INACTIVO = request.FlgInactivo,
+                ACCION = "INS"
+            }));
+
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
             return Ok(_resultado);
         }

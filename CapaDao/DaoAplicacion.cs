@@ -9,7 +9,7 @@ namespace CapaDao
 {
     public class DaoAplicacion
     {
-        public List<APLICACION> listarMenuUsuario(SqlConnection con, string sIdUsuario)
+        public List<APLICACION> GetMenuByUserId(SqlConnection con, string sIdUsuario)
         {
             List<APLICACION> listaAplicacion = null;
             APLICACION oAplicacion = null;

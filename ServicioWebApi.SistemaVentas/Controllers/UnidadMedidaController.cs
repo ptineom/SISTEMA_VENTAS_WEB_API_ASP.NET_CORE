@@ -1,5 +1,6 @@
 ﻿using CapaNegocio;
 using Entidades;
+using Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,22 +22,22 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _brUm = new BrUnidadMedida();
         }
 
-        [HttpGet("listaUmPorFamilia/{idGrupo}/{idFamilia}")]
-        public async Task<IActionResult> listaUmPorFamilia(string idGrupo, string idFamilia)
+        [HttpGet("GetAllByFamilyId/{idGrupo}/{idFamilia}")]
+        public async Task<IActionResult> GetAllByFamilyIdAsync(string idGrupo, string idFamilia)
         {
 
-            _resultado = await Task.Run(() => _brUm.listaUmPorFamilia(idGrupo, idFamilia));
+            _resultado = await Task.Run(() => _brUm.GetAllByFamilyId(idGrupo, idFamilia));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
-            if (_resultado.data == null)
+            if (_resultado.Data == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Debe de configurar las unidades de medidas.", Status = "Error" });
 
-            _resultado.data = ((List<UNIDAD_MEDIDA>)_resultado.data).Select(x => new
+            _resultado.Data = ((List<UNIDAD_MEDIDA>)_resultado.Data).Select(x => new
             {
-                idUm = x.ID_UM,
-                nomUm = x.NOM_UM
+                IdUm = x.ID_UM,
+                NomUm = ViewHelper.capitalizeFirstLetter(x.NOM_UM)
             }).ToList<object>(); ;
 
             return Ok(_resultado);

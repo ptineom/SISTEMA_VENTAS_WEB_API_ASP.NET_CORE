@@ -11,17 +11,20 @@ namespace SistemaVentas.WebApi.ViewModels.Usuario
     {
         [Required(ErrorMessage = "Debe de ingresar el {0}")]
         [Display(Name = "Usuario")]
-        public string ID_USUARIO { get; set; }
+        public string IdUsuario { get; set; }
+
         [Display(Name = "Contraseña actual")]
-        public string CONTRASENIA_ACTUAL { get; set; }
+        public string ContraseniaActual { get; set; }
+
         [Required(ErrorMessage = "Debe de ingresar la {0}")]
         [StringLength(maximumLength: 32, ErrorMessage = Constantes.StringLengthMensaje, MinimumLength = 3)]
         [Display(Name = "Contraseña nueva")]
-        public string CONTRASENIA_NUEVA { get; set; }
+        public string ContraseniaNueva { get; set; }
+
         [Required(ErrorMessage = "Debe de {0}")]
         [StringLength(maximumLength: 32, ErrorMessage = Constantes.StringLengthMensaje, MinimumLength = 3)]
         [Display(Name = "Repetir contraseña nueva")]
-        [Compare("CONTRASENIA_NUEVA", ErrorMessage = "Debe de coincidir la {0} y {1}")]
-        public string REPETIR_CONTRASENIA_NUEVA { get; set; }
+        [Compare("ContraseniaNueva", ErrorMessage = "Debe de coincidir la {0} y {1}")]
+        public string RepetirContraseniaNueva { get; set; }
     }
 }

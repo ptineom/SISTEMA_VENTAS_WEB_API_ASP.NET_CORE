@@ -13,6 +13,7 @@ namespace Helper
 
     public class EmailHelper
     {
+        private IConfiguration _configuration = null;
         private string _destino;
         private string _cuerpo;
         private string _asunto;
@@ -26,7 +27,7 @@ namespace Helper
         private string _origenPassword;
 
         private string _error;
-        public string error
+        public string Error
         {
             get
             {
@@ -34,8 +35,9 @@ namespace Helper
             }
         }
 
-        public EmailHelper(string destino, string cuerpo, string asunto, string cc_destinatarios = "", string cco_destinatarios = "")
+        public EmailHelper(IConfiguration configuration, string destino, string cuerpo, string asunto, string cc_destinatarios = "", string cco_destinatarios = "")
         {
+            _configuration = configuration;
             _destino = destino;
             _cuerpo = cuerpo;
             _asunto = asunto;
@@ -47,12 +49,13 @@ namespace Helper
             var configBuilder = new ConfigurationBuilder();
             configBuilder.AddJsonFile(path, false);
 
-            _origenUserName = configBuilder.Build().GetSection("Email:OrigenUserName").Value;
-            _origenPassword = configBuilder.Build().GetSection("Email:OrigenPassword").Value;
+            _origenUserName = configuration.GetSection("AppSettings:Email:OrigenUserName").Value;
+            _origenPassword = configuration["PasswordEmailOrigen"];
         }
-        public EmailHelper(string destino, string cuerpo, string asunto, string[] adjuntos,
+        public EmailHelper(IConfiguration configuration, string destino, string cuerpo, string asunto, string[] adjuntos,
           string cc_destinatarios = "", string cco_destinatarios = "")
         {
+            _configuration = configuration;
             _destino = destino;
             _cuerpo = cuerpo;
             _asunto = asunto;
@@ -75,17 +78,18 @@ namespace Helper
         }
 
         // envio de correo
-        public bool sendMail()
+        public bool SendMail()
         {
             bool bEnvioExitoso = false;
             string mensaje = string.Empty, email = string.Empty;
 
             //Validar todos los parametros ingresados.
-            if (!validarParametros(ref mensaje))
+            if (!ValidateParameters(ref mensaje))
             {
                 _error = mensaje;
                 return false;
             }
+
             MemoryStream ms = null;
             try
             {
@@ -102,7 +106,7 @@ namespace Helper
                             {
                                 email = string.Empty;
                                 email = ListaDestinatarios[i].Trim();
-                                if (!validarFormatoEmail(email))
+                                if (!ValidateFormatEmail(email))
                                 {
                                     mensaje = "Formato mal ingresado en el email de destino";
                                     break;
@@ -115,7 +119,9 @@ namespace Helper
                             }
                         }
                     }
+
                     mensaje = string.Empty;
+
                     //Lista de destinatarios como copias.
                     if (!string.IsNullOrEmpty(_cc_destinatarios))
                     {
@@ -126,7 +132,7 @@ namespace Helper
                             {
                                 email = string.Empty;
                                 email = ListaCc_Destinatarios[i].Trim();
-                                if (!validarFormatoEmail(email))
+                                if (!ValidateFormatEmail(email))
                                 {
                                     mensaje = "Formato mal ingresado en el email de copias destinatarios";
                                     break;
@@ -139,6 +145,7 @@ namespace Helper
                             }
                         }
                     }
+
                     //Lista de destinatario como oculto.
                     if (!string.IsNullOrEmpty(_cco_destinatarios))
                     {
@@ -149,7 +156,7 @@ namespace Helper
                             {
                                 email = string.Empty;
                                 email = ListaCco_Destinatarios[i].Trim();
-                                if (!validarFormatoEmail(email))
+                                if (!ValidateFormatEmail(email))
                                 {
                                     mensaje = "Formato mal ingresado en el email de destinatarios ocultos";
                                     break;
@@ -162,6 +169,7 @@ namespace Helper
                             }
                         }
                     }
+
                     //Lista de direcciones absolutas de archivos adjuntos.
                     if (_arrStringAdjuntos != null)
                     {
@@ -174,6 +182,7 @@ namespace Helper
 
                         }
                     }
+
                     if (_archivosAdjuntos != null)
                     {
                         // Agregado de archivo
@@ -203,7 +212,7 @@ namespace Helper
                         nPuerto = 465;
                         sSmtp = "smtp.live.com";
                     }
-                    //
+                   
                     myMessage.From = new MailAddress(_origenUserName);
                     myMessage.Subject = _asunto;
                     myMessage.Body = _cuerpo;
@@ -236,14 +245,14 @@ namespace Helper
 
         }
 
-        private bool validarParametros(ref string mensaje)
+        private bool ValidateParameters(ref string mensaje)
         {
             if (string.IsNullOrEmpty(_origenUserName) || string.IsNullOrEmpty(_origenPassword))
             {
                 mensaje = "Existe un problema con el email del sistema, comunicarse con el administrador.";
                 return false;
             }
-            if (!validarFormatoEmail(_origenUserName))
+            if (!ValidateFormatEmail(_origenUserName))
             {
                 mensaje = "Formato mal ingresado del email de sistema";
                 return false;
@@ -262,7 +271,7 @@ namespace Helper
             return true;
         }
 
-        private bool validarFormatoEmail(string email)
+        private bool ValidateFormatEmail(string email)
         {
             string sFormato;
             sFormato = "\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*";

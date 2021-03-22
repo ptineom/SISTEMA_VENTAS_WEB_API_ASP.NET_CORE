@@ -6,7 +6,7 @@ namespace Helper
 {
     public static class Extensiones
     {
-        public static object getValue(this object obj, string propertyName)
+        public static object GetValue(this object obj, string propertyName)
         {
             return obj.GetType().GetProperty(propertyName).GetValue(obj, null);
         }

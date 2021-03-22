@@ -22,7 +22,7 @@ namespace CapaNegocio
             dao = new DaoFotos();
             oResultado = new ResultadoOperacion();
         }
-        public ResultadoOperacion grabarFotos(FOTOS oModelo)
+        public ResultadoOperacion Register(FOTOS oModelo)
         {
             SqlTransaction trx = null;
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
@@ -32,7 +32,7 @@ namespace CapaNegocio
                     con.Open();
                     trx = con.BeginTransaction();
 
-                    dao.grabarFotos(con, trx, oModelo);
+                    dao.Register(con, trx, oModelo);
 
                     oResultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
@@ -46,7 +46,7 @@ namespace CapaNegocio
             }
             return oResultado;
         }
-        public ResultadoOperacion procesoGrabadoFotos(string uri, int[] medidas, FOTOS fotos, string formato)
+        public ResultadoOperacion ProcessSave(string uri, int[] medidas, FOTOS fotos, string formato)
         {
             List<string> listaFotos = null;
             string directory = Path.GetDirectoryName(uri);
@@ -81,7 +81,7 @@ namespace CapaNegocio
                     fotos.JSON_FOTOS = jsonFotos;
 
                     BrFotos brFoto = new BrFotos();
-                    oResultado = brFoto.grabarFotos(fotos);
+                    oResultado = brFoto.Register(fotos);
                 }
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace CapaNegocio
             return oResultado;
         }
      
-        public static void deleteFotosDirectory(string jsonFotos, string directory)
+        public static void DeleteDirectory(string jsonFotos, string directory)
         {
             if (string.IsNullOrEmpty(jsonFotos))
                 return;
@@ -100,14 +100,14 @@ namespace CapaNegocio
             //object fotos = JsonConvert.DeserializeObject<object>(jsonFotos);
             FOTOS fotos =  JsonSerializer.Deserialize<FOTOS>(jsonFotos);
 
-            if (fotos.getValue("FOTO1") != null)
-                 ImageHelper.deleteFile(Path.Combine(directory, fotos.getValue("FOTO1").ToString()));
+            if (fotos.GetValue("FOTO1") != null)
+                 ImageHelper.DeleteFile(Path.Combine(directory, fotos.GetValue("FOTO1").ToString()));
 
-            if (fotos.getValue("FOTO2") != null)
-                ImageHelper.deleteFile(Path.Combine(directory, fotos.getValue("FOTO2").ToString()));
+            if (fotos.GetValue("FOTO2") != null)
+                ImageHelper.DeleteFile(Path.Combine(directory, fotos.GetValue("FOTO2").ToString()));
 
-            if (fotos.getValue("FOTO3") != null)
-                ImageHelper.deleteFile(Path.Combine(directory, fotos.getValue("FOTO3").ToString()));
+            if (fotos.GetValue("FOTO3") != null)
+                ImageHelper.DeleteFile(Path.Combine(directory, fotos.GetValue("FOTO3").ToString()));
         }
     }
 }

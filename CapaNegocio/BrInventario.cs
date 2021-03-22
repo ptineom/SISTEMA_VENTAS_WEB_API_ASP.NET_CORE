@@ -30,11 +30,8 @@ namespace CapaNegocio
                     con.Open();
                     var lista = dao.listaArticulosInventario(con, accion, idSucursal, nomArticulo, idMarca, procedencia,
                         flgStockMinimo, flgSinStock, xmlGrupos, xmlFamilias, idArticulo);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                 
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
@@ -54,11 +51,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     ARTICULO modelo = dao.articuloXcodigoBarra(con, accion, idSucursal, idArticulo, flgBuscarXcodBarra);
-                    if (modelo != null)
-                    {
-                        oResultado.data = modelo;
-                    }
-                    oResultado.SetResultado(true, "");
+                 
+                    oResultado.SetResultado(true, modelo);
                 }
                 catch (Exception ex)
                 {
@@ -78,11 +72,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     var lista = dao.listaInventario(con, accion, idSucursal, idEstado, fechaInicio, fechaFinal, idUsuarioInventario, idTipoInventario);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;
-                    }
-                    oResultado.SetResultado(true, "");
+               
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
@@ -149,11 +140,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     INVENTARIO modelo = dao.inventarioXcodigo(con, idSucursal, nroInventario);
-                    if (modelo != null)
-                    {
-                        oResultado.data = modelo;
-                    }
-                    oResultado.SetResultado(true, "");
+                  
+                    oResultado.SetResultado(true, modelo);
                 }
                 catch (Exception ex)
                 {
@@ -218,11 +206,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     var lista = dao.listaInventarioManual(con, accion, idSucursal, xmlGrupos, xmlFamilias, flgImprimirCodBarra);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;//lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                  
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
@@ -244,11 +229,8 @@ namespace CapaNegocio
                     con.Open();
                     var lista = dao.kardex(con, idSucursal, fechaInicio, fechaFinal, xmlGrupos,
                         xmlFamilias, idArticulo);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;
-                    }
-                    oResultado.SetResultado(true, "");
+             
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {

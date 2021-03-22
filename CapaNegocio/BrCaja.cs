@@ -29,7 +29,7 @@ namespace CapaNegocio
                     var lista = dao.listaCajas(con);
                     if (lista != null)
                     {
-                        oResultado.data = lista; //lista.ToList<Object>();
+                        oResultado.Data = lista; //lista.ToList<Object>();
                     }
                     oResultado.SetResultado(true, "");
                 }

@@ -27,11 +27,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     DOC_COMPRA modelo = dao.combosCompras(con, idSucursal, idUsuario);
-                    if (modelo != null)
-                    {
-                        oResultado.data = modelo;//(Object)modelo;
-                    }
-                    oResultado.SetResultado(true, "");
+               
+                    oResultado.SetResultado(true, modelo);
                 }
                 catch (Exception ex)
                 {
@@ -98,11 +95,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     var lista = dao.listaCompras(con, idSucursal, idTipoComprobante, nroSerie, nroDocumento, fechaInicio, fechaFinal, idEstado);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista; // lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+              
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
@@ -122,11 +116,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     DOC_COMPRA_INFORME modelo = dao.compraPorCodigo(con, idSucursal, idTipoComprobante, nroSerie, nroDocumento, idProveedor);
-                    if (modelo != null)
-                    {
-                        oResultado.data = modelo;//(Object)modelo;
-                    }
-                    oResultado.SetResultado(true, "");
+            
+                    oResultado.SetResultado(true, modelo);
                 }
                 catch (Exception ex)
                 {

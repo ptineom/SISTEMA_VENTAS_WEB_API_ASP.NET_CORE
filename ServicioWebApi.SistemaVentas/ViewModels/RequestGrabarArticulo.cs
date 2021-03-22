@@ -8,32 +8,32 @@ namespace SistemaVentas.WebApi.ViewModels
 {
     public class RequestGrabarArticulo
     {
-        public string accion { get; set; }
-        public string idArticulo { get; set; }
-        public IFormFileCollection fileBinary { get; set; }
-        public string nomArticulo { get; set; }
-        public string nomVenta { get; set; }
-        public decimal precioBase { get; set; }
-        public decimal precioCompra { get; set; }
-        public string idGrupo { get; set; }
-        public string idFamilia { get; set; }
-        public int idMarca { get; set; }
-        public string codigoBarra { get; set; }
-        public bool flgImportado { get; set; }
-        public bool flgInactivo { get; set; }
-        public decimal stockMinimo { get; set; }
-        public string articulosUm { get; set; }
-        public string sucursales { get; set; }
+        public string Accion { get; set; }
+        public string IdArticulo { get; set; }
+        public IFormFileCollection FileBinary { get; set; }
+        public string NomArticulo { get; set; }
+        public string NomVenta { get; set; }
+        public decimal PrecioBase { get; set; }
+        public decimal PrecioCompra { get; set; }
+        public string IdGrupo { get; set; }
+        public string IdFamilia { get; set; }
+        public int IdMarca { get; set; }
+        public string CodigoBarra { get; set; }
+        public bool FlgImportado { get; set; }
+        public bool FlgInactivo { get; set; }
+        public decimal StockMinimo { get; set; }
+        public string ArticulosUm { get; set; }
+        public string Sucursales { get; set; }
     }
 
     public class RequestArticuloUm
     {
-        public string idUm { get; set; }
-        public decimal nroFactor { get; set; }
-        public int nroOrden { get; set; }
-        public bool flgPromocion { get; set; }
-        public decimal descuento1 { get; set; }
-        public string fecInicioPromocion { get; set; }
-        public string fecFinalPromocion { get; set; }
+        public string IdUm { get; set; }
+        public decimal NroFactor { get; set; }
+        public int NroOrden { get; set; }
+        public bool FlgPromocion { get; set; }
+        public decimal Descuento1 { get; set; }
+        public string FecInicioPromocion { get; set; }
+        public string FecFinalPromocion { get; set; }
     }
 }

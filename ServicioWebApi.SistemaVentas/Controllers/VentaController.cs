@@ -3,6 +3,7 @@ using Entidades;
 using Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using SistemaVentas.WebApi.Servicios.Seguridad;
 using SistemaVentas.WebApi.ViewModels.Seguridad;
 using SistemaVentas.WebApi.ViewModels.Venta;
@@ -18,34 +19,37 @@ namespace ServicioWebApi.SistemaVentas.Controllers
     [ApiController]
     public class VentaController : ControllerBase
     {
-        private BrVenta _brVenta { get; }
-        private IResultadoOperacion _resultado { get; set; }
-        private IHttpContextAccessor _httpContextAccessor { get; set; }
-        private string _idUsuario { get; set; }
-        private string _idSucursal { get; set; }
+        private BrVenta _brVenta = null;
+        private IResultadoOperacion _resultado = null;
+        private IHttpContextAccessor _accessor = null;
+        private IConfiguration _configuration = null;
+        private string _idUsuario = string.Empty;
+        private string _idSucursal = string.Empty;
 
-        public VentaController(IResultadoOperacion resultado, IHttpContextAccessor httpContextAccessor)
+        public VentaController(IResultadoOperacion resultado, IHttpContextAccessor accessor, IConfiguration configuration)
         {
+            _configuration = configuration;
             _resultado = resultado;
-            UsuarioViewModel usuario = new Session(httpContextAccessor).obtenerUsuarioLogueado();
-            _idUsuario = usuario.idUsuario;
-            _idSucursal = usuario.idSucursal;
-            _brVenta = new BrVenta();
+            _accessor = accessor;
+            UsuarioViewModel usuario = new Session(_accessor).GetUserLogged();
+            _idUsuario = usuario.IdUsuario;
+            _idSucursal = usuario.IdSucursal;
+            _brVenta = new BrVenta(_configuration);
         }
 
-        [HttpGet("getDataAsync")]
-        public async Task<IActionResult> getDataAsync()
+        [HttpGet("GetData")]
+        public async Task<IActionResult> GetDataAsync()
         {
             string tipoNCAnular = string.Empty;
 
             //Recuperar los listados para los combosBox de la pantalla.
-            _resultado = await Task.Run(() => _brVenta.combosVentas(_idSucursal, _idUsuario, ref tipoNCAnular));
+            _resultado = await Task.Run(() => _brVenta.GetData(_idSucursal, _idUsuario, ref tipoNCAnular));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
             //objeto venta
-            DOC_VENTA docVenta = (DOC_VENTA)_resultado.data;
+            DOC_VENTA docVenta = (DOC_VENTA)_resultado.Data;
 
             //Lista con solo los campos que necesitamos.
             List<object> listaDocumentos = null, listaComprobantes = null, listaMonedas = null, listaTipPag = null, listaTipCon = null,
@@ -55,11 +59,11 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 listaDocumentos = docVenta.listaDocumentos.Select(x => new
                 {
-                    idTipoDocumento = x.ID_TIPO_DOCUMENTO,
-                    nomTipoDocumento = x.NOM_TIPO_DOCUMENTO,
-                    abreviatura = x.ABREVIATURA,
-                    flgNoNatural = x.FLG_NO_NATURAL,
-                    maxDigitos = x.MAX_DIGITOS
+                    IdTipoDocumento = x.ID_TIPO_DOCUMENTO,
+                    NomTipoDocumento = x.NOM_TIPO_DOCUMENTO,
+                    Abreviatura = x.ABREVIATURA,
+                    MaxDigitos = x.MAX_DIGITOS,
+                    FlgRuc = x.FLG_RUC
                 }).ToList<object>();
             }
 
@@ -67,9 +71,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 listaComprobantes = docVenta.listaComprobantes.Select(x => new
                 {
-                    idTipoComprobante = x.ID_TIPO_COMPROBANTE,
-                    nomTipoComprobante = x.NOM_TIPO_COMPROBANTE,
-                    flgRendirSunat = x.FLG_RENDIR_SUNAT
+                    IdTipoComprobante = x.ID_TIPO_COMPROBANTE,
+                    NomTipoComprobante = ViewHelper.capitalizeFirstLetter(x.NOM_TIPO_COMPROBANTE),
+                    FlgRendirSunat = x.FLG_RENDIR_SUNAT
                 }).ToList<object>();
             }
 
@@ -77,10 +81,10 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 listaMonedas = docVenta.listaMonedas.Select(x => new
                 {
-                    idMoneda = x.ID_MONEDA,
-                    nomMoneda = x.NOM_MONEDA,
-                    flgLocal = x.FLG_LOCAL,
-                    sgnMoneda = x.SGN_MONEDA
+                    IdMoneda = x.ID_MONEDA,
+                    NomMoneda = x.NOM_MONEDA,
+                    FlgLocal = x.FLG_LOCAL,
+                    SgnMoneda = x.SGN_MONEDA
                 }).ToList<object>();
             }
 
@@ -88,8 +92,8 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 listaTipPag = docVenta.listaTipPag.Select(x => new
                 {
-                    idTipoPago = x.ID_TIPO_PAGO,
-                    nomTipoPago = x.NOM_TIPO_PAGO
+                    IdTipoPago = x.ID_TIPO_PAGO,
+                    NomTipoPago = ViewHelper.capitalizeFirstLetter(x.NOM_TIPO_PAGO)
                 }).ToList<object>();
             }
 
@@ -97,9 +101,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 listaTipCon = docVenta.listaTipCon.Select(x => new
                 {
-                    idTipoCondicionPago = x.ID_TIPO_CONDICION_PAGO,
-                    nomTipoCondicionPago = x.NOM_TIPO_CONDICION_PAGO,
-                    flgNoEvaluaCredito = x.FLG_NO_EVALUA_CREDITO
+                    IdTipoCondicionPago = x.ID_TIPO_CONDICION_PAGO,
+                    NomTipoCondicionPago = ViewHelper.capitalizeFirstLetter(x.NOM_TIPO_CONDICION_PAGO),
+                    FlgEvaluaCredito = x.FLG_EVALUA_CREDITO
                 }).ToList<object>();
             }
 
@@ -107,29 +111,30 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 listaEstados = docVenta.listaEstados.Select(x => new
                 {
-                    idEstado = x.ID_ESTADO,
-                    nomEstado = x.NOM_ESTADO
+                    IdEstado = x.ID_ESTADO,
+                    NomEstado = ViewHelper.capitalizeFirstLetter(x.NOM_ESTADO)
                 }).ToList<object>();
             }
 
             if (docVenta.listaDepartamentos != null)
             {
+              
                 listaDepartamentos = docVenta.listaDepartamentos.Select(x => new
                 {
-                    idUbigeo = x.ID_UBIGEO,
-                    ubigeoDepatamento = x.UBIGEO_DEPARTAMENTO
+                    IdDepartamento = x.ID_UBIGEO,
+                    NomDepartamento = ViewHelper.capitalizeAll(x.UBIGEO_DEPARTAMENTO)
                 }).ToList<object>();
             }
 
             //Recuperar los datos de la empresa.
             BrEmpresa brEmpresa = new BrEmpresa();
             _resultado = new ResultadoOperacion();
-            _resultado = await Task.Run(() => brEmpresa.obtenerEmpresa(_idSucursal, false, true));
+            _resultado = await Task.Run(() => brEmpresa.GetByFilters(_idSucursal, false, true));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
-            EMPRESA oEmpresa = (EMPRESA)_resultado.data;
+            EMPRESA oEmpresa = (EMPRESA)_resultado.Data;
             object empresa = null;
 
             //Solo devolvemos los campos que necesitamos
@@ -137,12 +142,12 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 empresa = new
                 {
-                    idEmpresa = oEmpresa.ID_EMPRESA,
-                    nomEmpresa = oEmpresa.NOM_EMPRESA,
-                    igv = oEmpresa.IGV,
-                    numeroRuc = oEmpresa.NUMERO_RUC,
-                    stockMinimo = oEmpresa.STOCK_MINIMO,
-                    montoBoletaObligatorioCliente = oEmpresa.MONTO_BOLETA_OBLIGATORIO_CLIENTE
+                    IdEmpresa = oEmpresa.ID_EMPRESA,
+                    NomEmpresa = oEmpresa.NOM_EMPRESA,
+                    Igv = oEmpresa.IGV,
+                    NumeroRuc = oEmpresa.NUMERO_RUC,
+                    StockMinimo = oEmpresa.STOCK_MINIMO,
+                    MontoBoletaObligatorioCliente = oEmpresa.MONTO_BOLETA_OBLIGATORIO_CLIENTE
                 };
             }
 
@@ -150,46 +155,44 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _resultado = new ResultadoOperacion();
             _resultado.SetResultado(true, new
             {
-                listas = new
+                Listas = new
                 {
-                    listaDocumentos,
-                    listaComprobantes,
-                    listaMonedas,
-                    listaTipPag,
-                    listaTipCon,
-                    listaEstados,
-                    listaDepartamentos
+                    ListaTipoDocumento = listaDocumentos,
+                    ListaTipoComprobante = listaComprobantes,
+                    ListaMoneda = listaMonedas,
+                    ListaTipoPago = listaTipPag,
+                    ListaTipoCondicion =listaTipCon,
+                    ListaEstado = listaEstados,
+                    ListaDepartamento = listaDepartamentos
                 },
-                empresa
+                Empresa = empresa
             });
             return Ok(_resultado);
         }
 
-        [HttpPost("grabarVentaAsync")]
-        public async Task<IActionResult> grabarVentaAsync(RequestVenta venta)
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterAsync(RequestVenta request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
 
-            if (venta.detalleVenta == null)
+            if (request.DetalleVenta == null)
                 return BadRequest(new { Mesagge = "No se envió el detalle de la venta.", Status = "Error" });
 
-            string nroSerie = string.Empty;
-            string nroDocumento = string.Empty;
 
             //Ejecutar el grabado de la venta.
             _resultado = await Task.Run(() =>
             {
                 //Agregando el detalle de la venta
-                string jsonArticulos = JsonSerializer.Serialize(venta.detalleVenta)
-                    .Replace("idArticulo", "ID_ARTICULO")
-                    .Replace("precioBase", "PRECIO_ARTICULO")
-                    .Replace("idUm", "ID_UM")
-                    .Replace("cantidad", "CANTIDAD")
-                    .Replace("tasDescuento", "TAS_DESCUENTO")
-                    .Replace("tasIgv", "TAS_IGV")
-                    .Replace("nroFactor", "NRO_FACTOR")
-                    .Replace("importe", "IMPORTE");
+                string jsonArticulos = JsonSerializer.Serialize(request.DetalleVenta)
+                    .Replace("IdArticulo", "ID_ARTICULO")
+                    .Replace("PrecioBase", "PRECIO_ARTICULO")
+                    .Replace("IdUm", "ID_UM")
+                    .Replace("Cantidad", "CANTIDAD")
+                    .Replace("TasDescuento", "TAS_DESCUENTO")
+                    .Replace("TasIgv", "TAS_IGV")
+                    .Replace("NroFactor", "NRO_FACTOR")
+                    .Replace("Importe", "IMPORTE");
 
                 //Agregando la cabecera de la venta.
                 DOC_VENTA docVenta = new DOC_VENTA()
@@ -197,139 +200,135 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                     ACCION = "INS",
                     ID_USUARIO_REGISTRO = _idUsuario,
                     ID_SUCURSAL = _idSucursal,
-                    ID_TIPO_COMPROBANTE = venta.idTipoComprobante,
-                    ID_CLIENTE = venta.idCliente,
-                    ID_MONEDA = venta.idMoneda,
-                    FEC_DOCUMENTO = venta.fecDocumento,
-                    HOR_DOCUMENTO = venta.horDocumento,
-                    FEC_VENCIMIENTO = venta.fecVencimiento,
-                    OBS_VENTA = venta.obsVenta,
-                    TOT_BRUTO = venta.totBruto,
-                    TOT_DESCUENTO = venta.totDescuento,
-                    TOT_IMPUESTO = venta.totImpuesto,
-                    TOT_VENTA = venta.totVenta,
-                    TAS_DESCUENTO = venta.tasDescuento,
-                    ID_TIPO_PAGO = venta.idTipoPago,
-                    ID_TIPO_CONDICION_PAGO = venta.idTipoCondicionPago,
-                    ABONO = venta.abono,
-                    SALDO = venta.saldo,
-                    ID_CAJA_CA = venta.idCajaCa,
+                    ID_TIPO_COMPROBANTE = request.IdTipoComprobante,
+                    ID_CLIENTE = request.IdCliente,
+                    ID_MONEDA = request.IdMoneda,
+                    FEC_DOCUMENTO = request.FecDocumento,
+                    HOR_DOCUMENTO = request.HorDocumento,
+                    FEC_VENCIMIENTO = request.FecVencimiento,
+                    OBS_VENTA = request.ObsVenta,
+                    TOT_BRUTO = request.TotBruto,
+                    TOT_DESCUENTO = request.TotDescuento,
+                    TOT_IMPUESTO = request.TotImpuesto,
+                    TOT_VENTA = request.TotVenta,
+                    TAS_DESCUENTO = request.TasDescuento,
+                    ID_TIPO_PAGO = request.IdTipoPago,
+                    ID_TIPO_CONDICION_PAGO = request.IdTipoCondicionPago,
+                    ABONO = request.Abono,
+                    SALDO = request.Saldo,
+                    ID_CAJA_CA = request.IdCajaCa,
                     ID_USUARIO_CA = _idUsuario,
-                    CORRELATIVO_CA = venta.correlativoCa,
+                    CORRELATIVO_CA = request.CorrelativoCa,
                     JSON_ARTICULOS = jsonArticulos
                 };
-                return _brVenta.grabarVenta(docVenta, ref nroSerie, ref nroDocumento);
+
+                return _brVenta.Register(docVenta);
             });
 
-            if (_resultado.bResultado)
-            {
-                _resultado.data = new { nroSerie, nroDocumento = ViewHelper.getNroComprobante(nroDocumento) };
-            }
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
             return Ok(_resultado);
         }
 
-        [HttpGet("ventaPorCodigoAsync")]
-        public async Task<IActionResult> ventaPorCodigoAsync([FromQuery] string idTipoComprobante, [FromQuery] string nroSerie, [FromQuery] int nroDocumento)
+        [HttpGet("GetById")]
+        public async Task<IActionResult> GetByIdAsync([FromQuery] string idTipoComprobante, [FromQuery] string nroSerie, [FromQuery] int nroDocumento)
         {
-            _resultado = await Task.Run(() => _brVenta.ventaPorCodigo(_idSucursal, idTipoComprobante, nroSerie, nroDocumento));
+            _resultado = await Task.Run(() => _brVenta.GetById(_idSucursal, idTipoComprobante, nroSerie, nroDocumento));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
-            if (_resultado.data == null)
+            if (_resultado.Data == null)
                 return NotFound(new { Message = "No se encontraron datos.", Status = "Error" });
 
-            DOC_VENTA docVenta = (DOC_VENTA)_resultado.data;
+            DOC_VENTA docVenta = (DOC_VENTA)_resultado.Data;
 
             //Construímos la data que queremos mostrar al cliente.
-            _resultado.data = new
+            _resultado.Data = new
             {
-                cabecera = new
+                Cabecera = new
                 {
-                    idTipoComprobante = docVenta.ID_TIPO_COMPROBANTE,
-                    nroSerie = docVenta.NRO_SERIE,
-                    nroDocumento = Helper.ViewHelper.getNroComprobante(docVenta.NRO_DOCUMENTO.ToString()),
-                    idCliente = docVenta.ID_CLIENTE,
-                    nomCliente = docVenta.NOM_CLIENTE,
-                    dirCliente = docVenta.DIR_CLIENTE,
-                    idTipoDocumento = docVenta.ID_TIPO_DOCUMENTO,
-                    nroDocumentoCliente = docVenta.NRO_DOCUMENTO_CLIENTE,
-                    idMoneda = docVenta.ID_MONEDA,
-                    sgnMoneda = docVenta.SGN_MONEDA,
-                    idTipoPago = docVenta.ID_TIPO_PAGO,
-                    idTipoCondicion = docVenta.ID_TIPO_CONDICION_PAGO,
-                    fecDocumento = docVenta.FEC_DOCUMENTO,
-                    horDocumento = docVenta.HOR_DOCUMENTO,
-                    fecVencimiento = docVenta.FEC_VENCIMIENTO,
-                    obsVenta = docVenta.OBS_VENTA,
-                    totBruto = docVenta.TOT_BRUTO,
-                    totDescuento = docVenta.TOT_DESCUENTO,
-                    totImpuesto = docVenta.TOT_IMPUESTO,
-                    totVenta = docVenta.TOT_VENTA,
-                    totVentaRedondeo = docVenta.TOT_VENTA_REDONDEO,
-                    tasDescuento = docVenta.TAS_DESCUENTO,
-                    estDocumento = docVenta.EST_DOCUMENTO,
-                    totVentaEnLetras = docVenta.TOT_VENTA_EN_LETRAS,
-                    idCajaCa = docVenta.ID_CAJA_CA,
-                    idUsuarioCa = docVenta.ID_USUARIO_CA,
-                    correlativoCa = docVenta.CORRELATIVO_CA,
-                    nomCaja = docVenta.NOM_CAJA,
-                    nomUsuarioCaja = docVenta.NOM_USUARIO_CAJA
+                    IdTipoComprobante = docVenta.ID_TIPO_COMPROBANTE,
+                    NroSerie = docVenta.NRO_SERIE,
+                    NroDocumento = Helper.ViewHelper.GetNroComprobante(docVenta.NRO_DOCUMENTO.ToString()),
+                    IdCliente = docVenta.ID_CLIENTE,
+                    NomCliente = ViewHelper.capitalizeAll(docVenta.NOM_CLIENTE),
+                    DirCliente = docVenta.DIR_CLIENTE,
+                    IdTipoDocumento = docVenta.ID_TIPO_DOCUMENTO,
+                    NroDocumentoCliente = docVenta.NRO_DOCUMENTO_CLIENTE,
+                    IdMoneda = docVenta.ID_MONEDA,
+                    SgnMoneda = docVenta.SGN_MONEDA,
+                    IdTipoPago = docVenta.ID_TIPO_PAGO,
+                    IdTipoCondicion = docVenta.ID_TIPO_CONDICION_PAGO,
+                    FecDocumento = docVenta.FEC_DOCUMENTO,
+                    HorDocumento = docVenta.HOR_DOCUMENTO,
+                    FecVencimiento = docVenta.FEC_VENCIMIENTO,
+                    ObsVenta = docVenta.OBS_VENTA,
+                    TotBruto = docVenta.TOT_BRUTO,
+                    TotDescuento = docVenta.TOT_DESCUENTO,
+                    TotImpuesto = docVenta.TOT_IMPUESTO,
+                    TotVenta = docVenta.TOT_VENTA,
+                    TotVentaRedondeo = docVenta.TOT_VENTA_REDONDEO,
+                    TasDescuento = docVenta.TAS_DESCUENTO,
+                    EstDocumento = docVenta.EST_DOCUMENTO,
+                    TotVentaEnLetras = docVenta.TOT_VENTA_EN_LETRAS,
+                    IdCajaCa = docVenta.ID_CAJA_CA,
+                    IdUsuarioCa = docVenta.ID_USUARIO_CA,
+                    CorrelativoCa = docVenta.CORRELATIVO_CA,
+                    NomCaja = docVenta.NOM_CAJA,
+                    NomUsuarioCaja = docVenta.NOM_USUARIO_CAJA
                 },
-                detalle = docVenta.listaDetalle.Select(x => new
+                Detalle = docVenta.listaDetalle.Select(x => new
                 {
-                    idArticulo = x.ID_ARTICULO,
-                    nomArticulo = x.NOM_ARTICULO,
-                    idUm = x.ID_UM,
-                    nomUm = x.NOM_UM,
-                    cantidad = x.CANTIDAD,
-                    tasDescuento = x.TAS_DESCUENTO,
-                    nroFactor = x.NRO_FACTOR,
-                    precioArticulo = x.PRECIO_ARTICULO,
-                    precioUnitario = x.PRECIO_UNITARIO,
-                    importe = x.IMPORTE,
-                    abreviado = x.ABREVIADO,
-                    codigo = string.IsNullOrEmpty(x.CODIGO_BARRA)? x.ID_ARTICULO: x.CODIGO_BARRA
+                    IdArticulo = x.ID_ARTICULO,
+                    NomArticulo = ViewHelper.capitalizeAll(x.NOM_ARTICULO),
+                    IdUm = x.ID_UM,
+                    NomUm = ViewHelper.capitalizeAll(x.NOM_UM),
+                    Cantidad = x.CANTIDAD,
+                    TasDescuento = x.TAS_DESCUENTO,
+                    NroFactor = x.NRO_FACTOR,
+                    PrecioArticulo = x.PRECIO_ARTICULO,
+                    PrecioUnitario = x.PRECIO_UNITARIO,
+                    Importe = x.IMPORTE,
+                    Abreviado = x.ABREVIADO,
+                    Codigo = string.IsNullOrEmpty(x.CODIGO_BARRA) ? x.ID_ARTICULO : x.CODIGO_BARRA
                 }).ToList<object>()
             };
 
             return Ok(_resultado);
         }
 
-        [HttpGet("listaVentasAsync")]
-        public async Task<IActionResult> listaVentasAsync([FromQuery] string idCliente, [FromQuery] string idTipoComprobante, [FromQuery] string nroSerie,
+        [HttpGet("GetAllByFilters")]
+        public async Task<IActionResult> GetAllByFiltersAsync([FromQuery] string idCliente, [FromQuery] string idTipoComprobante, [FromQuery] string nroSerie,
             [FromQuery] int nroDocumento, [FromQuery] string fechaInicio, [FromQuery] string fechaFinal, [FromQuery] int idEstado)
         {
-            _resultado = await Task.Run(() => _brVenta.listaVentas(_idSucursal, idCliente, idTipoComprobante, nroSerie, nroDocumento, fechaInicio, fechaFinal, idEstado));
+            _resultado = await Task.Run(() => _brVenta.GetAllByFilters(_idSucursal, idCliente, idTipoComprobante, nroSerie, nroDocumento, fechaInicio, fechaFinal, idEstado));
 
-            if (!_resultado.bResultado)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
-            }
-            if (_resultado.data == null)
-            {
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
+
+            if (_resultado.Data == null)
                 return NotFound(new { Message = "No se encontraron datos.", Status = "Error" });
-            }
 
-            List<DOC_VENTA> listaDocVta = (List<DOC_VENTA>)_resultado.data; ;
+            List<DOC_VENTA> listaDocVta = (List<DOC_VENTA>)_resultado.Data; ;
 
-            _resultado.data = listaDocVta.Select(x => new
+            _resultado.Data = listaDocVta.Select(x => new
             {
-                comprobante = x.COMPROBANTE,
-                docCliente = x.DOC_CLIENTE,
-                nomCliente = x.NOM_CLIENTE,
-                sgnMoneda = x.SGN_MONEDA,
-                totVenta = x.TOT_VENTA,
-                fecDocumento = x.FEC_DOCUMENTO,
-                flgEvaluaCredito = !x.FLG_NO_EVALUA_CREDITO,
-                nomTipoCondicionPago = x.NOM_TIPO_CONDICION_PAGO,
-                estDocumento = x.EST_DOCUMENTO,
-                nomEstado = x.NOM_ESTADO,
-                idTipoComprobante = x.ID_TIPO_COMPROBANTE,
-                nroSerie = x.NRO_SERIE,
-                nroDocumento = x.NRO_DOCUMENTO,
-                emailCliente = x.EMAIL_CLIENTE
+                Comprobante = x.COMPROBANTE,
+                DocCliente = x.DOC_CLIENTE,
+                NomCliente = ViewHelper.capitalizeAll(x.NOM_CLIENTE),
+                SgnMoneda = x.SGN_MONEDA,
+                TotVenta = x.TOT_VENTA,
+                FecDocumento = x.FEC_DOCUMENTO,
+                FlgEvaluaCredito = x.FLG_EVALUA_CREDITO,
+                NomTipoCondicionPago = ViewHelper.capitalizeFirstLetter(x.NOM_TIPO_CONDICION_PAGO),
+                EstDocumento = x.EST_DOCUMENTO,
+                NomEstado = ViewHelper.capitalizeAll(x.NOM_ESTADO),
+                IdTipoComprobante = x.ID_TIPO_COMPROBANTE,
+                NroSerie = x.NRO_SERIE,
+                NroDocumento = x.NRO_DOCUMENTO,
+                EmailCliente = x.EMAIL_CLIENTE
             }).ToList<object>();
 
             return Ok(_resultado);

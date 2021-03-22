@@ -1,7 +1,9 @@
 ﻿using CapaNegocio;
 using Entidades;
+using Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,32 +15,34 @@ namespace ServicioWebApi.SistemaVentas.Controllers
     [ApiController]
     public class FamiliaController : ControllerBase
     {
+        private IConfiguration _configuration = null;
         private IResultadoOperacion _resultado;
         private BrFamilia _brFamilia;
-        public FamiliaController()
+        public FamiliaController(IConfiguration configuration)
         {
+            _configuration = configuration;
             _resultado = new ResultadoOperacion();
-            _brFamilia = new BrFamilia();
+            _brFamilia = new BrFamilia(_configuration);
         }
 
-        [HttpGet("cboFamilias/{idGrupo}")]
-        public async Task<IActionResult> cboFamilias(string idGrupo)
+        [HttpGet("GetAllByGroupIdHelper/{idGrupo}")]
+        public async Task<IActionResult> GetAllByGroupIdHelperAsync(string idGrupo)
         {
-            _resultado = await Task.Run(() => _brFamilia.cboFamilia(idGrupo));
+            _resultado = await Task.Run(() => _brFamilia.GetAllByGroupIdHelper(idGrupo));
 
-            if (!_resultado.bResultado)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.sMensaje, Status = "Error" });
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
 
-            if (_resultado.data == null)
+            if (_resultado.Data == null)
                 return StatusCode(StatusCodes.Status404NotFound, new { Message = "Debe de configurar las clasificaciones de familas.", Status = "Error" });
 
-            List<object> familias = ((List<FAMILIA>)_resultado.data).Select(x => new
+            List<object> familias = ((List<FAMILIA>)_resultado.Data).Select(x => new
             {
-                idFamilia = x.ID_FAMILIA,
-                nomFamilia = x.NOM_FAMILIA
+                IdFamilia = x.ID_FAMILIA,
+                NomFamilia = x.NOM_FAMILIA 
             }).ToList<object>();
 
-            _resultado.data = familias;
+            _resultado.Data = familias;
 
             return Ok(_resultado);
         }

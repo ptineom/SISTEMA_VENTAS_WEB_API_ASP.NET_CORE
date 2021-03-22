@@ -18,19 +18,16 @@ namespace CapaNegocio
             dao = new DaoSucursalUsuario();
             oResultado = new ResultadoOperacion();
         }
-        public ResultadoOperacion listaUsuarios(string idSucursal, ref List<SUCURSAL_USUARIO> listaSucUsu)
+        public ResultadoOperacion GetUsersBySucursalId(string idSucursal, ref List<SUCURSAL_USUARIO> listaSucUsu)
         {
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = dao.listaUsuarios(con, idSucursal, ref listaSucUsu);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                    var lista = dao.GetUsersBySucursalId(con, idSucursal, ref listaSucUsu);
+                 
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +38,7 @@ namespace CapaNegocio
             return oResultado;
         }
 
-        public ResultadoOperacion grabarSucursalUsuario(SUCURSAL_USUARIO oModelo)
+        public ResultadoOperacion Register(SUCURSAL_USUARIO oModelo)
         {
             SqlTransaction trx = null;
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
@@ -50,7 +47,7 @@ namespace CapaNegocio
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.grabarSucursalUsuario(con, trx, oModelo);
+                    dao.Register(con, trx, oModelo);
                     oResultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
                 }
@@ -64,7 +61,7 @@ namespace CapaNegocio
             return oResultado;
         }
 
-        public ResultadoOperacion anularSucursalUsuario(string idSucursal, string idUsuario, string idUsuarioRegistro)
+        public ResultadoOperacion Delete(string idSucursal, string idUsuario, string idUsuarioRegistro)
         {
             SqlTransaction trx = null;
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
@@ -73,7 +70,7 @@ namespace CapaNegocio
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.anularSucursalUsuario(con, trx, idSucursal, idUsuario, idUsuarioRegistro);
+                    dao.Delete(con, trx, idSucursal, idUsuario, idUsuarioRegistro);
                     oResultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
                     trx.Commit();
                 }
@@ -87,20 +84,20 @@ namespace CapaNegocio
             return oResultado;
         }
 
-        public ResultadoOperacion listaSucursalPorUsuario(string idUsuario)
+        public ResultadoOperacion GetSucursalesByUserId(string idUsuario)
         {
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = dao.listaSucursalPorUsuario(con, idUsuario);
+                    var lista = dao.GetSucursalesByUserId(con, idUsuario);
                     if (lista != null)
                     {
-                        oResultado.data = lista.ToList<SUCURSAL>().Select(x => new
+                        oResultado.Data = lista.ToList<SUCURSAL>().Select(x => new
                         {
-                            x.ID_SUCURSAL,
-                            x.NOM_SUCURSAL
+                           IdSucursal = x.ID_SUCURSAL,
+                           NomSucursal = x.NOM_SUCURSAL
                         });
                     }
                     oResultado.SetResultado(true, "");

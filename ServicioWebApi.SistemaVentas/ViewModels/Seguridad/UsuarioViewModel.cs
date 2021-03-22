@@ -7,12 +7,12 @@ namespace SistemaVentas.WebApi.ViewModels.Seguridad
 {
     public class UsuarioViewModel
     {
-        public string idUsuario { get; set; }
-        public string nomUsuario { get; set; }
-        public string nomRol { get; set; }
-        public string idSucursal { get; set; }
-        public string nomSucursal { get; set; }
-        public bool flgCtrlTotal { get; set; }
-        public string ipAddress { get; set; }
+        public string IdUsuario { get; set; }
+        public string NomUsuario { get; set; }
+        public string NomRol { get; set; }
+        public string IdSucursal { get; set; }
+        public string NomSucursal { get; set; }
+        public bool FlgCtrlTotal { get; set; }
+        public string IpAddress { get; set; }
     }
 }

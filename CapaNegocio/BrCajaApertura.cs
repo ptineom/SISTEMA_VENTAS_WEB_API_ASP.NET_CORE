@@ -30,7 +30,7 @@ namespace CapaNegocio
                     var modelo = dao.cajaAbiertaXusuario(con, idSucursal,idCaja, idUsuario, correlativo);
                     if (modelo != null)
                     {
-                        oResultado.data = (Object)modelo;
+                        oResultado.Data = (Object)modelo;
                     }
                     oResultado.SetResultado(true, "");
                 }
@@ -53,7 +53,7 @@ namespace CapaNegocio
                     var modelo = dao.totalCobranzaXcaja(con, idSucursal, idCaja, idUsuario, correlativo);
                     if (modelo != null)
                     {
-                        oResultado.data = (Object)modelo;
+                        oResultado.Data = (Object)modelo;
                     }
                     oResultado.SetResultado(true, "");
                 }
@@ -77,7 +77,7 @@ namespace CapaNegocio
                     var modelo = dao.grabarCajaApertura(con, trx, oModelo);
                     if (modelo != null)
                     {
-                        oResultado.data = (Object)modelo;
+                        oResultado.Data = (Object)modelo;
                     }
                     oResultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
@@ -123,7 +123,7 @@ namespace CapaNegocio
                     var modelo = dao.cajaXusuario(con, idSucursal, idUsuario);
                     if (modelo != null)
                     {
-                        oResultado.data = (object)modelo;
+                        oResultado.Data = (object)modelo;
                     }
                     oResultado.SetResultado(true, "");
                 }
@@ -166,7 +166,7 @@ namespace CapaNegocio
                     var lista = dao.listaAperturasCajasXusuario(con, idSucursal, idUsuario, fecIni, fecFin);
                     if (lista != null)
                     {
-                        oResultado.data = lista;// lista.ToList<Object>();
+                        oResultado.Data = lista;// lista.ToList<Object>();
                     }
                     oResultado.SetResultado(true, "");
                 }
@@ -192,7 +192,7 @@ namespace CapaNegocio
                     COMBOS_REPORTE_CAJA_ARQUEO modelo = dao.combosReportesCajaArqueo(con, idSucursal);
                     if (modelo != null)
                     {
-                        oResultado.data = (object)modelo;
+                        oResultado.Data = (object)modelo;
                     }
                     oResultado.SetResultado(true, "");
                 }
@@ -215,7 +215,7 @@ namespace CapaNegocio
                     var lista = dao.listaArqueoCaja(con, idSucursal, fecIni, fecFin, idUsuario, idCaja);
                     if (lista != null)
                     {
-                        oResultado.data = lista; //lista.ToList<Object>();
+                        oResultado.Data = lista; //lista.ToList<Object>();
                     }
                     oResultado.SetResultado(true, "");
                 }

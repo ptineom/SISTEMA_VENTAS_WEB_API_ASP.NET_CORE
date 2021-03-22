@@ -9,21 +9,21 @@ namespace SistemaVentas.WebApi.ViewModels.Seguridad
     public class RequestUsuarioSucursalViewModel
     {
         [Required(ErrorMessage ="Debe ingresar el {0}")]
-        public string idSucursal { get; set; }
+        public string IdSucursal { get; set; }
         [Required(ErrorMessage = "Debe ingresar el {0}")]
-        public string nomSucursal { get; set; }
+        public string NomSucursal { get; set; }
         [Required(ErrorMessage = "Debe de ingresar el {0}")]
         [Display(Name = "usuario")]
-        public string idUsuario { get; set; }
+        public string IdUsuario { get; set; }
         [Required(ErrorMessage = "Debe de ingresar el {0}")]
-        public string password { get; set; }
+        public string Password { get; set; }
     }
 
     public class RequestCambiarSucursalViewModel
     {
         [Required(ErrorMessage = "Debe ingresar el {0}")]
-        public string idSucursal { get; set; }
+        public string IdSucursal { get; set; }
         [Required(ErrorMessage = "Debe ingresar el {0}")]
-        public string nomSucursal { get; set; }
+        public string NomSucursal { get; set; }
     }
 }

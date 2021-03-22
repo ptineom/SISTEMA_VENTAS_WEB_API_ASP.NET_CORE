@@ -8,7 +8,7 @@ namespace CapaDao
 {
     public class DaoRefreshToken
     {
-        public bool grabarRefreshToken(SqlConnection con, SqlTransaction trx, REFRESH_TOKEN oModelo)
+        public bool Register(SqlConnection con, SqlTransaction trx, REFRESH_TOKEN oModelo)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_REFRESH_TOKEN", con, trx))
@@ -29,7 +29,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public REFRESH_TOKEN refreshTokenPorCodigo(SqlConnection con, string idRefreshToken)
+        public REFRESH_TOKEN GetById(SqlConnection con, string idRefreshToken)
         {
             REFRESH_TOKEN modelo = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_REFRESH_TOKEN", con))

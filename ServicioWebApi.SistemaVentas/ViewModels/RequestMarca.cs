@@ -9,10 +9,10 @@ namespace ServicioWebApi.SistemaVentas.ViewModels
 {
     public class RequestMarca
     {
-        public int idMarca { get; set; }
+        public int IdMarca { get; set; }
 
         [Required(ErrorMessage = Constantes.RequiredMensaje)]
         [Display(Name = "Marca")]
-        public string nomMarca { get; set; }
+        public string NomMarca { get; set; }
     }
 }

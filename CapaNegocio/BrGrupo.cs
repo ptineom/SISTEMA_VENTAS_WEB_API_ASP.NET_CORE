@@ -7,104 +7,88 @@ using Entidades;
 using CapaDao;
 using Helper;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+
 namespace CapaNegocio
 {
     public class BrGrupo
     {
-        DaoGrupo dao = null;
-        ResultadoOperacion oResultado = null;
-        public BrGrupo()
+        IConfiguration _configuration = null;
+        DaoGrupo _dao = null;
+        ResultadoOperacion _resultado = null;
+        Conexion _conexion = null;
+
+        public BrGrupo(IConfiguration configuration)
         {
-            dao = new DaoGrupo();
-            oResultado = new ResultadoOperacion();
+            _dao = new DaoGrupo();
+            _resultado = new ResultadoOperacion();
+            _configuration = configuration;
+            _conexion = new Conexion(_configuration);
         }
-        public ResultadoOperacion listaGrupos()
+        public ResultadoOperacion GetAll()
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = dao.listaGrupos(con);
+                   List<GRUPO> lista = _dao.GetAll(con);
                     if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                        lista.ForEach( x => x.NOM_GRUPO = ViewHelper.capitalizeFirstLetter(x.NOM_GRUPO));
+
+                    _resultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
                     Elog.save(this, ex);
-                    oResultado.SetResultado(false, ex.Message);
+                    _resultado.SetResultado(false, ex.Message);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-        public ResultadoOperacion cboGrupos()
-        {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
-            {
-                try
-                {
-                    con.Open();
-                    var lista = dao.cboGrupos(con);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
-                }
-                catch (Exception ex)
-                {
-                    Elog.save(this, ex);
-                    oResultado.SetResultado(false, ex.Message);
-                }
-            }
-            return oResultado;
-        }
-        public ResultadoOperacion grabarGrupo(GRUPO oModelo)
+        public ResultadoOperacion Register(GRUPO oModelo)
         {
             SqlTransaction trx = null;
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.grabarGrupo(con, trx, oModelo);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
+                    _dao.Register(con, trx, oModelo);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-        public ResultadoOperacion anularGrupo(string idGrupo, string idUsuario)
+        public ResultadoOperacion Delete(string idGrupo, string idUsuario)
         {
             SqlTransaction trx = null;
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.anularGrupo(con, trx, idGrupo, idUsuario);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
+                    _dao.Delete(con, trx, idGrupo, idUsuario);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
     }
 }

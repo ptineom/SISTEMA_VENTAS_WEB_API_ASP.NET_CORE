@@ -10,7 +10,7 @@ namespace CapaDao
 {
     public class DaoGrupo
     {
-        public List<GRUPO> listaGrupos(SqlConnection con)
+        public List<GRUPO> GetAll(SqlConnection con)
         {
             List<GRUPO> lista = null;
             GRUPO modelo = null;
@@ -38,35 +38,8 @@ namespace CapaDao
             }
             return lista;
         }
-        public List<GRUPO> cboGrupos(SqlConnection con)
-        {
-            List<GRUPO> lista = null;
-            GRUPO modelo = null;
-            using (SqlCommand cmd = new SqlCommand("PA_MANT_GRUPO", con))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.Add("@ACCION", SqlDbType.VarChar, 3).Value = "CBO";
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader != null)
-                {
-                    if (reader.HasRows)
-                    {
-                        lista = new List<GRUPO>();
-                        while (reader.Read())
-                        {
-                            modelo = new GRUPO();
-                            modelo.ID_GRUPO = reader.GetString(reader.GetOrdinal("ID_GRUPO"));
-                            modelo.NOM_GRUPO = reader.GetString(reader.GetOrdinal("NOM_GRUPO"));
-                            lista.Add(modelo);
-                        }
-                    }
-                }
-                reader.Close();
-                reader.Dispose();
-            }
-            return lista;
-        }
-        public bool grabarGrupo(SqlConnection con, SqlTransaction trx, GRUPO oModelo)
+        
+        public bool Register(SqlConnection con, SqlTransaction trx, GRUPO oModelo)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_GRUPO", con, trx))
@@ -82,7 +55,7 @@ namespace CapaDao
             }
             return bExito;
         }
-        public bool anularGrupo(SqlConnection con, SqlTransaction trx,string idGrupo, string idUsuario)
+        public bool Delete(SqlConnection con, SqlTransaction trx,string idGrupo, string idUsuario)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_GRUPO", con, trx))

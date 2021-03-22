@@ -7,40 +7,45 @@ using Entidades;
 using CapaDao;
 using Helper;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+
 namespace CapaNegocio
 {
     public class BrSucursal
     {
-        DaoSucursal dao = null;
-        ResultadoOperacion oResultado = null;
-        public BrSucursal()
+        DaoSucursal _dao = null;
+        ResultadoOperacion _resultado = null;
+        IConfiguration _configuration = null;
+        Conexion _conexion = null;
+
+        public BrSucursal(IConfiguration configuration)
         {
-            dao = new DaoSucursal();
-            oResultado = new ResultadoOperacion();
+            _dao = new DaoSucursal();
+            _resultado = new ResultadoOperacion();
+            _configuration = configuration;
+            _conexion = new Conexion(_configuration);
         }
-        public ResultadoOperacion listaSucursales()
+
+        public ResultadoOperacion GetAll()
         {
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = dao.listaSucursales(con);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                    var lista = _dao.GetAll(con);
+                  
+                    _resultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
                     Elog.save(this, ex);
-                    oResultado.SetResultado(false, ex.Message);
+                    _resultado.SetResultado(false, ex.Message);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-        public ResultadoOperacion grabarSucursal(SUCURSAL oModelo)
+        public ResultadoOperacion Register(SUCURSAL oModelo)
         {
             SqlTransaction trx = null;
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
@@ -49,28 +54,27 @@ namespace CapaNegocio
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.grabarSucursal(con, trx, oModelo);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
+                    _dao.Register(con, trx, oModelo);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-        public void obtenerSucursalPorCodigo(string idSucursal, ref List<UBIGEO> listaProvincia, ref List<UBIGEO> listaDistrito)
+        public void GetById(string idSucursal, ref List<UBIGEO> listaProvincia, ref List<UBIGEO> listaDistrito)
         {
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
             {
                 try
                 {
                     con.Open();
-                    DaoSucursal dao = new DaoSucursal();
-                    dao.obtenerSucursalPorCodigo(con, idSucursal, ref listaProvincia, ref listaDistrito);
+                    _dao.GetById(con, idSucursal, ref listaProvincia, ref listaDistrito);
                 }
                 catch (Exception ex)
                 {
@@ -78,7 +82,7 @@ namespace CapaNegocio
                 }
             }
         }
-        public ResultadoOperacion anularSucursal(string idSucursal, string idUsuario)
+        public ResultadoOperacion Delete(string idSucursal, string idUsuario)
         {
             SqlTransaction trx = null;
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
@@ -87,18 +91,18 @@ namespace CapaNegocio
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.anularSucursal(con, trx, idSucursal, idUsuario);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
+                    _dao.Delete(con, trx, idSucursal, idUsuario);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
        
     }

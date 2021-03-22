@@ -1,6 +1,7 @@
 ﻿using CapaDao;
 using Entidades;
 using Helper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -11,23 +12,28 @@ namespace CapaNegocio
 {
     public class BrAplicacion
     {
-        DaoAplicacion dao = null;
-        ResultadoOperacion oResultado = null;
-        public BrAplicacion()
+        IConfiguration _configuration = null;
+        Conexion _conexion = null;
+        DaoAplicacion _dao = null;
+        ResultadoOperacion _Resultado = null;
+
+        public BrAplicacion(IConfiguration configuration)
         {
-            dao = new DaoAplicacion();
-            oResultado = new ResultadoOperacion();
+            _dao = new DaoAplicacion();
+            _Resultado = new ResultadoOperacion();
+            _configuration = configuration;
+            _conexion = new Conexion(_configuration);
         }
 
-        public ResultadoOperacion listarMenuUsuario(string idUsuario)
+        public ResultadoOperacion GetMenuByUserId(string idUsuario)
         {
             List<APLICACION> lista = null;
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    lista = dao.listarMenuUsuario(con, idUsuario);
+                    lista = _dao.GetMenuByUserId(con, idUsuario);
                     if (lista != null)
                     {
                         //Agregado el menú home
@@ -44,15 +50,15 @@ namespace CapaNegocio
                             FLG_HOME = true
                         });
                     }
-                    oResultado.SetResultado(true, "", lista);
+                    _Resultado.SetResultado(true, "", lista);
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message);
+                    _Resultado.SetResultado(false, ex.Message);
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _Resultado;
         }
     }
 }

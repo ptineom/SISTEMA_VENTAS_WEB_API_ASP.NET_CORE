@@ -11,52 +11,54 @@ namespace CapaNegocio
 {
     public class BrUnidadMedida
     {
-        DaoUnidadMedida dao = null;
-        ResultadoOperacion oResultado = null;
+        DaoUnidadMedida _dao = null;
+        ResultadoOperacion _resultado = null;
         public BrUnidadMedida()
         {
-            dao = new DaoUnidadMedida();
-            oResultado = new ResultadoOperacion();
+            _dao = new DaoUnidadMedida();
+            _resultado = new ResultadoOperacion();
         }
-        public ResultadoOperacion listaUm()
+        public ResultadoOperacion GetAll()
         {
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = dao.listaUm(con);
-                    oResultado.SetResultado(true, lista);
+                    var lista = _dao.GetAll(con);
+                    _resultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
                     Elog.save(this, ex);
-                    oResultado.SetResultado(false, ex.Message);
+                    _resultado.SetResultado(false, ex.Message);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-
-        public ResultadoOperacion listaUmPorFamilia(string idGrupo, string idFamilia)
+        public ResultadoOperacion GetAllByFamilyId(string idGrupo, string idFamilia)
         {
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = dao.listaUmPorFamilia(con, idGrupo, idFamilia);
-                    oResultado.SetResultado(true, lista);
+                    var lista = _dao.GetAllByFamilyId(con, idGrupo, idFamilia);
+
+                    if(lista!= null)
+                        lista.ForEach(x => x.NOM_UM = ViewHelper.capitalizeFirstLetter(x.NOM_UM));
+
+                    _resultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
                     Elog.save(this, ex);
-                    oResultado.SetResultado(false, ex.Message);
+                    _resultado.SetResultado(false, ex.Message);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-
-        public ResultadoOperacion grabarUm(UNIDAD_MEDIDA oModelo)
+        public ResultadoOperacion Register(UNIDAD_MEDIDA oModelo)
         {
             SqlTransaction trx = null;
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
@@ -65,20 +67,20 @@ namespace CapaNegocio
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.grabarUm(con, trx, oModelo);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
+                    _dao.Register(con, trx, oModelo);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
-        public ResultadoOperacion anularUm(string idUm, string idUsuario)
+        public ResultadoOperacion Delete(string idUm, string idUsuario)
         {
             SqlTransaction trx = null;
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
@@ -87,18 +89,18 @@ namespace CapaNegocio
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.anularUm(con, trx, idUm, idUsuario);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
+                    _dao.Delete(con, trx, idUm, idUsuario);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace CapaDao
 {
     public class DaoArticulo
     {
-        public List<ARTICULO> listaArticulos(SqlConnection con, string accion, string idSucursal, string tipoFiltro, string filtro)
+        public List<ARTICULO> GetAllByFilters(SqlConnection con, string accion, string idSucursal, string tipoFiltro, string filtro)
         {
             List<ARTICULO> lista = null;
             ARTICULO modelo = null;
@@ -54,11 +54,10 @@ namespace CapaDao
             return lista;
         }
        
-        public List<ARTICULO> listaArticulosGeneral(SqlConnection con, string accion, string idSucursal, string tipoFiltro, string filtro, ref MONEDA moneda)
+        public List<ARTICULO> GetAllByFiltersHelper(SqlConnection con, string accion, string idSucursal, string tipoFiltro, string filtro)
         {
             List<ARTICULO> lista = null;
             ARTICULO modelo = null;
-            MONEDA oMoneda = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_ARTICULO", con))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -96,61 +95,14 @@ namespace CapaDao
                             lista.Add(modelo);
                         }
                     }
-                    if (reader.NextResult())
-                    {
-                        if (reader.HasRows)
-                        {
-                            if (reader.Read())
-                            {
-                                oMoneda = new MONEDA()
-                                {
-                                    ID_MONEDA = reader.GetString(reader.GetOrdinal("ID_MONEDA")),
-                                    NOM_MONEDA = reader.GetString(reader.GetOrdinal("NOM_MONEDA")),
-                                    SGN_MONEDA = reader.GetString(reader.GetOrdinal("SGN_MONEDA"))
-                                };
-                            }
-                            moneda = oMoneda;
-                        }
-                    }
                 }
                 reader.Close();
                 reader.Dispose();
             }
             return lista;
         }
-        
-        public List<UNIDAD_MEDIDA> listaUmPorFamilia(SqlConnection con, string idGrupo, string idFamilia)
-        {
-            List<UNIDAD_MEDIDA> lista = null;
-            UNIDAD_MEDIDA modelo = null;
-            using (SqlCommand cmd = new SqlCommand("PA_MANT_FAMILIA_UM", con))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.Add("@ACCION", SqlDbType.VarChar, 3).Value = "GET";
-                cmd.Parameters.Add("@ID_GRUPO", SqlDbType.VarChar, 2).Value = idGrupo;
-                cmd.Parameters.Add("@ID_FAMILIA", SqlDbType.VarChar, 3).Value = idFamilia;
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader != null)
-                {
-                    if (reader.HasRows)
-                    {
-                        lista = new List<UNIDAD_MEDIDA>();
-                        while (reader.Read())
-                        {
-                            modelo = new UNIDAD_MEDIDA();
-                            modelo.ID_UM = reader.GetString(reader.GetOrdinal("ID_UM"));
-                            modelo.NOM_UM = reader.GetString(reader.GetOrdinal("NOM_UM"));
-                            lista.Add(modelo);
-                        }
-                    }
-                }
-                reader.Close();
-                reader.Dispose();
-            }
-            return lista;
-        }
-        
-        public bool grabarArticulo(SqlConnection con, SqlTransaction trx, ARTICULO oModelo, ref string idArticulo, ref string jsonFotos, 
+   
+        public bool Register(SqlConnection con, SqlTransaction trx, ARTICULO oModelo, ref string idArticulo, ref string jsonFotos, 
             ref bool flgMismaFoto)
         {
             bool bExito;
@@ -201,7 +153,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public bool anularArticulo(SqlConnection con, SqlTransaction trx, string idArticulo, string idUsuario, ref string xmlFotos)
+        public bool Delete(SqlConnection con, SqlTransaction trx, string idArticulo, string idUsuario, ref string xmlFotos)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_ARTICULO", con, trx))
@@ -221,7 +173,7 @@ namespace CapaDao
             return bExito;
         }
         
-        public ARTICULO articuloPorCodigo(SqlConnection con, string idSucursal, string idArticulo)
+        public ARTICULO GetById(SqlConnection con, string idSucursal, string idArticulo)
         {
             ARTICULO modelo = null;
             List<ARTICULO_UM> listaArticuloUm = null;

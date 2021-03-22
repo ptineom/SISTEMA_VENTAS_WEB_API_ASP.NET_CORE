@@ -10,7 +10,7 @@ namespace CapaDao
 {
     public class DaoUnidadMedida
     {
-        public List<UNIDAD_MEDIDA> listaUm(SqlConnection con)
+        public List<UNIDAD_MEDIDA> GetAll(SqlConnection con)
         {
             List<UNIDAD_MEDIDA> lista = null;
             UNIDAD_MEDIDA modelo = null;
@@ -41,7 +41,7 @@ namespace CapaDao
             return lista;
         }
 
-        public List<UNIDAD_MEDIDA> listaUmPorFamilia(SqlConnection con, string idGrupo, string idFamilia)
+        public List<UNIDAD_MEDIDA> GetAllByFamilyId(SqlConnection con, string idGrupo, string idFamilia)
         {
             List<UNIDAD_MEDIDA> lista = null;
             UNIDAD_MEDIDA modelo = null;
@@ -72,7 +72,7 @@ namespace CapaDao
             return lista;
         }
 
-        public bool grabarUm(SqlConnection con, SqlTransaction trx, UNIDAD_MEDIDA oModelo)
+        public bool Register(SqlConnection con, SqlTransaction trx, UNIDAD_MEDIDA oModelo)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_UNIDAD_MEDIDA", con, trx))
@@ -91,7 +91,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public bool anularUm(SqlConnection con, SqlTransaction trx, string idUm, string idUsuario)
+        public bool Delete(SqlConnection con, SqlTransaction trx, string idUm, string idUsuario)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_UNIDAD_MEDIDA", con, trx))

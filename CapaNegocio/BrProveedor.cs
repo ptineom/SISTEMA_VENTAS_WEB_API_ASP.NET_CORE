@@ -26,11 +26,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     var lista = dao.listaProveedores(con, tipoFiltro, filtro, flgConInactivos);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
@@ -49,11 +46,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     PROVEEDOR modelo = dao.proveedorPorCodigo(con, idProveedor);
-                    if (modelo != null)
-                    {
-                        oResultado.data = modelo;
-                    }
-                    oResultado.SetResultado(true, "");
+                 
+                    oResultado.SetResultado(true, modelo);
                 }
                 catch (Exception ex)
                 {
@@ -115,11 +109,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     PROVEEDOR modelo = dao.proveedorPorDocumento(con, idTipoDocumento, nroDocumento);
-                    if (modelo != null)
-                    {
-                        oResultado.data  = modelo;
-                    }
-                    oResultado.SetResultado(true, "");
+                 
+                    oResultado.SetResultado(true, modelo);
                 }
                 catch (Exception ex)
                 {

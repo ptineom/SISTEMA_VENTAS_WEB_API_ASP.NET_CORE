@@ -10,9 +10,9 @@ namespace SistemaVentas.WebApi.ViewModels.Seguridad
     {
         [Required(ErrorMessage = "Debe de ingresar el {0} ")]
         [Display(Name = "Usuario")]
-        public string idUsuario { get; set; }
+        public string IdUsuario { get; set; }
         [Required(ErrorMessage = "Debe de ingresar la {0}")]
         [Display(Name = "Contraseña")]
-        public string password { get; set; }
+        public string Password { get; set; }
     }
 }

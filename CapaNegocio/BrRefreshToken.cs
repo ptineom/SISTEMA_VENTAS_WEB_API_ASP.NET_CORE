@@ -5,60 +5,66 @@ using System.Text;
 using CapaDao;
 using Entidades;
 using Helper;
+using Microsoft.Extensions.Configuration;
 
 namespace CapaNegocio
 {
     public class BrRefreshToken
     {
-        DaoRefreshToken dao = null;
-        ResultadoOperacion oResultado = null;
-        public BrRefreshToken()
+        DaoRefreshToken _dao = null;
+        ResultadoOperacion _resultado = null;
+        IConfiguration _configuration = null;
+        Conexion _conexion = null;
+
+        public BrRefreshToken(IConfiguration configuration)
         {
-            dao = new DaoRefreshToken();
-            oResultado = new ResultadoOperacion();
+            _dao = new DaoRefreshToken();
+            _resultado = new ResultadoOperacion();
+            _configuration = configuration;
+            _conexion = new Conexion(_configuration);
         }
 
-        public ResultadoOperacion grabarRefreshToken(REFRESH_TOKEN oModelo)
+        public ResultadoOperacion Register(REFRESH_TOKEN oModelo)
         {
             SqlTransaction trx = null;
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
                     trx = con.BeginTransaction();
-                    dao.grabarRefreshToken(con, trx, oModelo);
-                    oResultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
+                    _dao.Register(con, trx, oModelo);
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
                 }
                 catch (Exception ex)
                 {
-                    oResultado.SetResultado(false, ex.Message.ToString());
+                    _resultado.SetResultado(false, ex.Message.ToString());
                     trx.Rollback();
                     Elog.save(this, ex);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
 
-        public ResultadoOperacion refreshTokenPorCodigo(string idRefreshToken)
+        public ResultadoOperacion GetById(string idRefreshToken)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    REFRESH_TOKEN modelo = dao.refreshTokenPorCodigo(con, idRefreshToken);
+                    REFRESH_TOKEN modelo = _dao.GetById(con, idRefreshToken);
 
-                    oResultado.SetResultado(true, "", modelo);
+                    _resultado.SetResultado(true, "", modelo);
                 }
                 catch (Exception ex)
                 {
                     Elog.save(this, ex);
-                    oResultado.SetResultado(false, ex.Message);
+                    _resultado.SetResultado(false, ex.Message);
                 }
             }
-            return oResultado;
+            return _resultado;
         }
     }
 }

@@ -26,11 +26,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     PAGOS modelo = dao.combosPagos(con, idSucursal, idUsuario);
-                    if (modelo != null)
-                    {
-                        oResultado.data = modelo;
-                    }
-                    oResultado.SetResultado(true, "");
+                  
+                    oResultado.SetResultado(true, modelo);
                 }
                 catch (Exception ex)
                 {
@@ -49,11 +46,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     var lista = dao.listaCtaCtePagos(con, idSucursal, estadoPago, idProveedor, idTipoComprobante, nroSerie, nroDocumento, fechaInicio, fechaFinal);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                 
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
@@ -72,11 +66,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     var lista = dao.listaPagos(con, idSucursal, idTipoComprobante, nroSerie, nroDocumento, idProveedor);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+                  
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {
@@ -142,11 +133,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     PAGOS modelo = dao.combosReportePagos(con, idSucursal);
-                    if (modelo != null)
-                    {
-                        oResultado.data = modelo;
-                    }
-                    oResultado.SetResultado(true, "");
+                  
+                    oResultado.SetResultado(true, modelo);
                 }
                 catch (Exception ex)
                 {
@@ -166,11 +154,8 @@ namespace CapaNegocio
                 {
                     con.Open();
                     var lista = dao.reporteCtaCtePagos(con, idSucursal, idTipoComprobante, fechaInicio, fechaFinal);
-                    if (lista != null)
-                    {
-                        oResultado.data = lista;// lista.ToList<Object>();
-                    }
-                    oResultado.SetResultado(true, "");
+            
+                    oResultado.SetResultado(true, lista);
                 }
                 catch (Exception ex)
                 {

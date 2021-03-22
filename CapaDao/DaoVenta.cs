@@ -11,7 +11,7 @@ namespace CapaDao
     public class DaoVenta
     {
         #region proceso facturacion
-        public DOC_VENTA combosVentas(SqlConnection con, string idSucursal, string idUsuario, ref string tipoNCAnular)
+        public DOC_VENTA GetData(SqlConnection con, string idSucursal, string idUsuario, ref string tipoNCAnular)
         {
             DOC_VENTA modelo = null;
             List<TIPO_DOCUMENTO> listaDocumentos = null;
@@ -41,9 +41,9 @@ namespace CapaDao
                                 ID_TIPO_DOCUMENTO = reader.GetInt32(reader.GetOrdinal("ID_TIPO_DOCUMENTO")),
                                 NOM_TIPO_DOCUMENTO = reader.GetString(reader.GetOrdinal("NOM_TIPO_DOCUMENTO")),
                                 ABREVIATURA = reader.GetString(reader.GetOrdinal("ABREVIATURA")),
-                                FLG_NO_NATURAL = reader.GetBoolean(reader.GetOrdinal("FLG_NO_NATURAL")),
                                 MAX_DIGITOS = reader.GetInt32(reader.GetOrdinal("MAX_DIGITOS")),
-                            });
+                                FLG_RUC = reader.GetBoolean(reader.GetOrdinal("FLG_RUC"))
+                            }); 
                         }
                     }
                     if (reader.NextResult())
@@ -105,7 +105,7 @@ namespace CapaDao
                                 {
                                     ID_TIPO_CONDICION_PAGO = reader.GetString(reader.GetOrdinal("ID_TIPO_CONDICION_PAGO")),
                                     NOM_TIPO_CONDICION_PAGO = reader.GetString(reader.GetOrdinal("NOM_TIPO_CONDICION_PAGO")),
-                                    FLG_NO_EVALUA_CREDITO = reader.GetBoolean(reader.GetOrdinal("FLG_NO_EVALUA_CREDITO")),
+                                    FLG_EVALUA_CREDITO = reader.GetBoolean(reader.GetOrdinal("FLG_EVALUA_CREDITO")),
                                 });
                             }
                         }
@@ -163,7 +163,7 @@ namespace CapaDao
             return modelo;
         }
 
-        public bool grabarVenta(SqlConnection con, SqlTransaction trx, DOC_VENTA oModelo, ref string serie, ref string nroComprobante)
+        public bool Register(SqlConnection con, SqlTransaction trx, DOC_VENTA oModelo, ref string serie, ref string nroComprobante)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_VENTAS", con, trx))
@@ -213,7 +213,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public List<DOC_VENTA> listaVentas(SqlConnection con, string idSucursal, string idCliente, string idTipoComprobante,
+        public List<DOC_VENTA> GetAllByFilters(SqlConnection con, string idSucursal, string idCliente, string idTipoComprobante,
             string nroSerie, int nroDocumento, string fechaInicio, string fechaFinal, int idEstado)
         {
             List<DOC_VENTA> lista = null;
@@ -250,7 +250,7 @@ namespace CapaDao
                             modelo.SGN_MONEDA = reader.GetString(reader.GetOrdinal("SGN_MONEDA"));
                             modelo.EST_DOCUMENTO = reader.GetInt32(reader.GetOrdinal("EST_DOCUMENTO"));
                             modelo.NOM_TIPO_CONDICION_PAGO = reader.GetString(reader.GetOrdinal("NOM_TIPO_CONDICION_PAGO"));
-                            modelo.FLG_NO_EVALUA_CREDITO = reader.GetBoolean(reader.GetOrdinal("FLG_NO_EVALUA_CREDITO"));
+                            modelo.FLG_EVALUA_CREDITO = reader.GetBoolean(reader.GetOrdinal("FLG_EVALUA_CREDITO"));
                             modelo.NOM_ESTADO = reader.GetString(reader.GetOrdinal("NOM_ESTADO"));
                             modelo.EMAIL_CLIENTE = reader.GetString(reader.GetOrdinal("EMAIL_CLIENTE"));
                             lista.Add(modelo);
@@ -263,7 +263,7 @@ namespace CapaDao
             return lista;
         }
 
-        public DOC_VENTA ventaPorCodigo(SqlConnection con, string idSucursal, string idTipoComprobante, string nroSerie,
+        public DOC_VENTA GetById(SqlConnection con, string idSucursal, string idTipoComprobante, string nroSerie,
             int nroDocumento)
         {
             DOC_VENTA modelo = null;
@@ -507,7 +507,7 @@ namespace CapaDao
                             modelo.NOM_TIPO_CONDICION_PAGO = reader.GetString(reader.GetOrdinal("NOM_TIPO_CONDICION_PAGO"));
                             modelo.NOM_USUARIO_CAJA = reader.GetString(reader.GetOrdinal("NOM_USUARIO_CAJA"));
                             modelo.NOM_CAJA = reader.GetString(reader.GetOrdinal("NOM_CAJA"));
-                            modelo.FLG_NO_EVALUA_CREDITO = reader.GetBoolean(reader.GetOrdinal("FLG_NO_EVALUA_CREDITO"));
+                            modelo.FLG_EVALUA_CREDITO = reader.GetBoolean(reader.GetOrdinal("FLG_EVALUA_CREDITO"));
                             lista.Add(modelo);
                         }
                     }

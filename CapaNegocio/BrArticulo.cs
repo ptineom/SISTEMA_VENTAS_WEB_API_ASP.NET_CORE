@@ -20,6 +20,7 @@ namespace CapaNegocio
         private ResultadoOperacion _resultado = null;
         private IConfiguration _configuration = null;
         private IWebHostEnvironment _environment = null;
+        private Conexion _conexion = null;
 
         public BrArticulo(IConfiguration configuration, IWebHostEnvironment environment)
         {
@@ -27,16 +28,17 @@ namespace CapaNegocio
             _resultado = new ResultadoOperacion();
             _environment = environment;
             _configuration = configuration;
+            _conexion = new Conexion(_configuration);
         }
 
-        public ResultadoOperacion listaArticulos(string accion, string idSucursal, string tipoFiltro, string filtro)
+        public ResultadoOperacion GetAllByFilters(string accion, string idSucursal, string tipoFiltro, string filtro)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = _dao.listaArticulos(con, accion, idSucursal, tipoFiltro, filtro);
+                    var lista = _dao.GetAllByFilters(con, accion, idSucursal, tipoFiltro, filtro);
 
                     if (lista != null)
                     {
@@ -71,14 +73,14 @@ namespace CapaNegocio
             return _resultado;
         }
 
-        public ResultadoOperacion listaArticulosGeneral(string accion, string idSucursal, string tipoFiltro, string filtro, ref MONEDA moneda)
+        public ResultadoOperacion GetAllByFiltersHelper(string accion, string idSucursal, string tipoFiltro, string filtro)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    List<ARTICULO> lista = _dao.listaArticulosGeneral(con, accion, idSucursal, tipoFiltro, filtro, ref moneda);
+                    List<ARTICULO> lista = _dao.GetAllByFiltersHelper(con, accion, idSucursal, tipoFiltro, filtro );
 
                     if (lista != null)
                     {
@@ -101,10 +103,10 @@ namespace CapaNegocio
             return _resultado;
         }
 
-        public ResultadoOperacion grabarArticulo(ARTICULO oModelo, ref string idArticulo, ref string jsonFotos, ref bool flgMismaFoto)
+        public ResultadoOperacion Register(ARTICULO oModelo, ref string idArticulo, ref string jsonFotos, ref bool flgMismaFoto)
         {
             SqlTransaction trx = null;
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
@@ -115,15 +117,15 @@ namespace CapaNegocio
                     if (!string.IsNullOrEmpty(oModelo.JSON_UM))
                     {
                         oModelo.JSON_UM = oModelo.JSON_UM
-                            .Replace("idUm", "ID_UM")
-                            .Replace("nroFactor", "NRO_FACTOR")
-                            .Replace("descuento", "DESCUENTO1")
-                            .Replace("flgPromocion", "FLG_PROMOCION")
-                            .Replace("fecInicioPromocion", "FEC_INICIO_PROMOCION")
-                            .Replace("fecFinalPromocion", "FEC_FINAL_PROMOCION");
+                            .Replace("IdUm", "ID_UM")
+                            .Replace("NroFactor", "NRO_FACTOR")
+                            .Replace("Descuento", "DESCUENTO1")
+                            .Replace("FlgPromocion", "FLG_PROMOCION")
+                            .Replace("FecInicioPromocion", "FEC_INICIO_PROMOCION")
+                            .Replace("FecFinalPromocion", "FEC_FINAL_PROMOCION");
                     };
 
-                    _dao.grabarArticulo(con, trx, oModelo, ref idArticulo, ref jsonFotos, ref flgMismaFoto);
+                    _dao.Register(con, trx, oModelo, ref idArticulo, ref jsonFotos, ref flgMismaFoto);
 
                     _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                     trx.Commit();
@@ -138,10 +140,10 @@ namespace CapaNegocio
             return _resultado;
         }
 
-        public ResultadoOperacion anularArticulo(string idArticulo, string idUsuario)
+        public ResultadoOperacion Delete(string idArticulo, string idUsuario)
         {
             SqlTransaction trx = null;
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
@@ -149,7 +151,7 @@ namespace CapaNegocio
                     trx = con.BeginTransaction();
 
                     string jsonFotos = string.Empty;
-                    _dao.anularArticulo(con, trx, idArticulo, idUsuario, ref jsonFotos);
+                    _dao.Delete(con, trx, idArticulo, idUsuario, ref jsonFotos);
 
                     _resultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk, jsonFotos);
                     trx.Commit();
@@ -164,14 +166,14 @@ namespace CapaNegocio
             return _resultado;
         }
 
-        public ResultadoOperacion articuloPorCodigo(string idSucursal, string idArticulo)
+        public ResultadoOperacion GetById(string idSucursal, string idArticulo)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    ARTICULO modelo = _dao.articuloPorCodigo(con, idSucursal, idArticulo);
+                    ARTICULO modelo = _dao.GetById(con, idSucursal, idArticulo);
                     if (modelo != null)
                     {
                         string dominioWeb = Configuraciones.DOMINIO_WEB_API;

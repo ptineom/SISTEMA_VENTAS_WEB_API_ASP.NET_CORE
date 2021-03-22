@@ -9,6 +9,6 @@ namespace SistemaVentas.WebApi.ViewModels.Seguridad
     public class RequestRefreshTokenViewModel
     {
         [Required]
-        public string idRefreshToken { get; set; }
+        public string IdRefreshToken { get; set; }
     }
 }
