@@ -128,7 +128,7 @@ namespace CapaNegocio
                     con.Open();
                     trx = con.BeginTransaction();
 
-                    _dao.anularVenta(con, trx, idSucursal, idTipoComprobante, nroSerie, nroDocumento, idUsuario, ref nroSerieNC, ref nroDocumentoNC);
+                    _dao.Delete(con, trx, idSucursal, idTipoComprobante, nroSerie, nroDocumento, idUsuario, ref nroSerieNC, ref nroDocumentoNC);
 
                     _resultado.SetResultado(true, Helper.Constantes.sMensajeEliminadoOk);
                     trx.Commit();

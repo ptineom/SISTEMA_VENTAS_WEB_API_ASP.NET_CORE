@@ -349,7 +349,7 @@ namespace CapaDao
             return modelo;
         }
 
-        public bool anularVenta(SqlConnection con, SqlTransaction trx, string idSucursal, string idTipoComprobante,
+        public bool Delete(SqlConnection con, SqlTransaction trx, string idSucursal, string idTipoComprobante,
     string nroSerie, int nroDocumento, string idUsuario, ref string nroSerieNC, ref int nroDocumentoNC)
         {
             bool bExito;

@@ -41,8 +41,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _resultado.Data = lista.Select(x => new
             {
                 IdProvincia = x.ID_UBIGEO,
-                NomProvincia = ViewHelper.capitalizeAll(x.UBIGEO_PROVINCIA)
+                NomProvincia = ViewHelper.CapitalizeAll(x.UBIGEO_PROVINCIA)
             });
+
 
             return Ok(_resultado);
         }
@@ -64,7 +65,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _resultado.Data = lista.Select(x => new
             {
                 IdDistrito = x.ID_UBIGEO,
-                NomDistrito = ViewHelper.capitalizeAll(x.UBIGEO_DISTRITO)
+                NomDistrito = ViewHelper.CapitalizeAll(x.UBIGEO_DISTRITO)
             });
 
             return Ok(_resultado);

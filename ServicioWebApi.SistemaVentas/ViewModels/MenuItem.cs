@@ -14,5 +14,6 @@ namespace SistemaVentas.WebApi.ViewModels
         public List<MenuItem> Children { get; set; }
         public List<object> Breadcrumbs { get; set; }
         public bool FlgHome { get; set; }
+        public bool FlgRequiereAperturaCaja { get; set; }
     }
 }

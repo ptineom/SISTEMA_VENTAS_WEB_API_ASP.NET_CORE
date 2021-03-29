@@ -34,7 +34,7 @@ namespace CapaNegocio
                     con.Open();
                    List<GRUPO> lista = _dao.GetAll(con);
                     if (lista != null)
-                        lista.ForEach( x => x.NOM_GRUPO = ViewHelper.capitalizeFirstLetter(x.NOM_GRUPO));
+                        lista.ForEach( x => x.NOM_GRUPO = ViewHelper.CapitalizeFirstLetter(x.NOM_GRUPO));
 
                     _resultado.SetResultado(true, lista);
                 }

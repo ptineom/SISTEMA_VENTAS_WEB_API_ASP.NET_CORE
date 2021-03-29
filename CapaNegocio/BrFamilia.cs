@@ -52,7 +52,7 @@ namespace CapaNegocio
                     con.Open();
                     var lista = _dao.GetAllByGroupIdHelper(con, idGrupo);
                     if (lista != null)
-                        lista.ForEach(x => x.NOM_FAMILIA = ViewHelper.capitalizeFirstLetter(x.NOM_FAMILIA));
+                        lista.ForEach(x => x.NOM_FAMILIA = ViewHelper.CapitalizeFirstLetter(x.NOM_FAMILIA));
 
                     _resultado.SetResultado(true, lista);
                 }

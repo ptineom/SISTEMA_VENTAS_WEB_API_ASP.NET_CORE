@@ -16,9 +16,7 @@ namespace Helper
             try
             {
                 if (!Directory.Exists(directorio))
-                {
                     Directory.CreateDirectory(directorio);
-                }
 
                 //Nombre del archivo.
                 string fecha = System.DateTime.Now.ToString("yyyyMMdd");
@@ -41,7 +39,7 @@ namespace Helper
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new Exception(ex.Message);
             }
         }
     }

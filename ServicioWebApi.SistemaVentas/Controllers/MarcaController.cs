@@ -51,7 +51,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _resultado.Data = ((List<MARCA>)_resultado.Data).Select(x => new
             {
                 IdMarca = x.ID_MARCA,
-                NomMarca = ViewHelper.capitalizeAll(x.NOM_MARCA)
+                NomMarca = ViewHelper.CapitalizeAll(x.NOM_MARCA)
             });
 
             return Ok(_resultado);

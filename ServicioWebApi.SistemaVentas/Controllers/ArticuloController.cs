@@ -76,9 +76,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             List<object> sucursales = ((List<SUCURSAL>)modelo.sucursales).Select(x => new
             {
                 IdSucursal = x.ID_SUCURSAL,
-                NomSucursal = ViewHelper.capitalizeAll(x.NOM_SUCURSAL),
-                Direccion = ViewHelper.capitalizeFirstLetter(x.DIRECCION),
-                NomAlmacen = ViewHelper.capitalizeAll(x.NOM_ALMACEN),
+                NomSucursal = ViewHelper.CapitalizeAll(x.NOM_SUCURSAL),
+                Direccion = ViewHelper.CapitalizeFirstLetter(x.DIRECCION),
+                NomAlmacen = ViewHelper.CapitalizeAll(x.NOM_ALMACEN),
                 StockActual = 0
             }).ToList<object>();
 
@@ -96,15 +96,6 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 SgnMoneda = y.SGN_MONEDA
             }).FirstOrDefault();
 
-            //(string Id, string Nombre, int Edad) a1 = ("01", "Hector", 34);
-            (string Id, string Nombre, int Edad) a1 = (Id: "01", Nombre: "Hector", Edad: 34);
-
-            var qq = a1.Id;
-            var ww = a1.Nombre;
-            var ee = a1.Edad;
-
-            var rr = tupla();
-
             //Resultado final 
             _resultado = new ResultadoOperacion();
             _resultado.SetResultado(true, new
@@ -112,11 +103,8 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 Igv = modelo.IGV,
                 ListaSucursal = sucursales,
                 ListaGrupo = grupos,
-                MonedaLocal = monedaLocal,
-                a1
+                MonedaLocal = monedaLocal
             });
-
-
 
             return Ok(_resultado);
         }
@@ -388,7 +376,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 NomVenta = articulo.NOM_VENTA,
                 CodigoBarra = articulo.CODIGO_BARRA,
                 IdMarca = articulo.ID_MARCA,
-                NomMarca = ViewHelper.capitalizeAll(articulo.NOM_MARCA),
+                NomMarca = ViewHelper.CapitalizeAll(articulo.NOM_MARCA),
                 IdGrupo = articulo.ID_GRUPO,
                 IdFamilia = articulo.ID_FAMILIA,
                 PrecioVenta = articulo.PRECIO_VENTA,
@@ -432,9 +420,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 IdArticulo = x.ID_ARTICULO,
                 Codigo = string.IsNullOrEmpty(x.CODIGO_BARRA) ? x.ID_ARTICULO : x.CODIGO_BARRA,
-                NomArticulo = ViewHelper.capitalizeAll(x.NOM_ARTICULO),
-                NomMarca = ViewHelper.capitalizeAll(x.NOM_MARCA),
-                NomUm = ViewHelper.capitalizeAll(x.NOM_UM),
+                NomArticulo = ViewHelper.CapitalizeAll(x.NOM_ARTICULO),
+                NomMarca = ViewHelper.CapitalizeAll(x.NOM_MARCA),
+                NomUm = ViewHelper.CapitalizeAll(x.NOM_UM),
                 StockActual = x.STOCK_ACTUAL,
                 PrecioVentaFinal = x.PRECIO_VENTA_FINAL,
                 Descuento1 = x.DESCUENTO1,
@@ -443,7 +431,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 ListaUm = x.listaArticuloUm.Select(y => new
                 {
                     IdUm = y.ID_UM,
-                    NomUm = ViewHelper.capitalizeAll(y.NOM_UM),
+                    NomUm = ViewHelper.CapitalizeAll(y.NOM_UM),
                     NroFactor = y.NRO_FACTOR,
                     Descuento1 = y.DESCUENTO1,
                     PrecioVenta = y.PRECIO_VENTA,

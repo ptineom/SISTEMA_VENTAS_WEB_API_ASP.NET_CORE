@@ -37,7 +37,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _resultado.Data = ((List<UNIDAD_MEDIDA>)_resultado.Data).Select(x => new
             {
                 IdUm = x.ID_UM,
-                NomUm = ViewHelper.capitalizeFirstLetter(x.NOM_UM)
+                NomUm = ViewHelper.CapitalizeFirstLetter(x.NOM_UM)
             }).ToList<object>(); ;
 
             return Ok(_resultado);

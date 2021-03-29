@@ -91,6 +91,7 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
             menuItem.Icon = aplicacion.ICON_SPA;
             menuItem.Route = aplicacion.ROUTE_SPA;
             menuItem.FlgHome = aplicacion.FLG_HOME;
+            menuItem.FlgRequiereAperturaCaja = aplicacion.FLG_REQUIERE_APERTURA_CAJA;
 
             if (aplicacion.FLG_FORMULARIO && !string.IsNullOrEmpty(aplicacion.BREADCRUMS))
             {

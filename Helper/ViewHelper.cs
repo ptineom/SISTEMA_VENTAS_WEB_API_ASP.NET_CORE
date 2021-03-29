@@ -255,14 +255,14 @@ namespace Helper
             return frase.Substring(0, lenght) + " ...";
         }
         //  de cada palabra de la frase la priemra letra lo convierte en mayuscula.
-        public static string capitalizeAll(string frase)
+        public static string CapitalizeAll(string frase)
         {
             if (frase == null)
                 return "";
 
             return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(frase.ToLower());
         }
-        public static string capitalizeFirstLetter(string frase)
+        public static string CapitalizeFirstLetter(string frase)
         {
             if (frase == null)
                 return "";

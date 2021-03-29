@@ -16,5 +16,7 @@ namespace Entidades
         public bool FLG_RAIZ { get; set; }
         public string BREADCRUMS { get; set; }
         public bool FLG_HOME { get; set; }
+
+        public bool FLG_REQUIERE_APERTURA_CAJA { get; set; }
     }
 }

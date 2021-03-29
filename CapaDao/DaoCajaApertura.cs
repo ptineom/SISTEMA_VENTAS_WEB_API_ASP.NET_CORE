@@ -10,7 +10,7 @@ namespace CapaDao
 {
     public class DaoCajaApertura
     {
-        public CAJA_APERTURA cajaAbiertaXusuario(SqlConnection con, string idSucursal, string idCaja, string idUsuario, int correlativo)
+        public CAJA_APERTURA GetOpenBox(SqlConnection con, string idSucursal, string idCaja, string idUsuario, int correlativo)
         {
             CAJA_APERTURA modelo = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con))
@@ -49,7 +49,7 @@ namespace CapaDao
             }
             return modelo;
         }
-        public DINERO_EN_CAJA totalCobranzaXcaja(SqlConnection con, string idSucursal, string idCaja, string idUsuario, int correlativo)
+        public DINERO_EN_CAJA GetTotalsByUserId (SqlConnection con, string idSucursal, string idCaja, string idUsuario, int correlativo)
         {
             DINERO_EN_CAJA modelo = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con))
@@ -82,7 +82,7 @@ namespace CapaDao
             }
             return modelo;
         }
-        public CAJA_APERTURA grabarCajaApertura(SqlConnection con, SqlTransaction trx, CAJA_APERTURA oModelo)
+        public CAJA_APERTURA Register(SqlConnection con, SqlTransaction trx, CAJA_APERTURA oModelo)
         {
             CAJA_APERTURA modelo = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con, trx))
@@ -127,7 +127,7 @@ namespace CapaDao
             return modelo;
         }
 
-        public bool validarCaja(SqlConnection con, string idSucursal, string idCaja, string idUsuario, int correlativoCa)
+        public bool ValidateBox(SqlConnection con, string idSucursal, string idCaja, string idUsuario, int correlativoCa)
         {
             bool bExito;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con))
@@ -146,35 +146,7 @@ namespace CapaDao
             return bExito;
         }
 
-        public CAJA_APERTURA cajaXusuario(SqlConnection con, string idSucursal, string idUsuario)
-        {
-            CAJA_APERTURA modelo = null;
-            using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.Add("@ACCION", SqlDbType.VarChar, 3).Value = "MOS";
-                cmd.Parameters.Add("@ID_SUCURSAL", SqlDbType.VarChar, 2).Value = idSucursal;
-                cmd.Parameters.Add("@ID_USUARIO", SqlDbType.VarChar, 20).Value = idUsuario;
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader != null)
-                {
-                    if (reader.HasRows)
-                    {
-                        if (reader.Read())
-                        {
-                            modelo = new CAJA_APERTURA();
-                            modelo.NOM_CAJA = reader.GetString(reader.GetOrdinal("NOM_CAJA"));
-                            modelo.FECHA_APERTURA = reader.GetString(reader.GetOrdinal("FECHA_APERTURA"));
-                        }
-                    }
-                }
-                reader.Close();
-                reader.Dispose();
-            }
-            return modelo;
-        }
-
-        public void combosCajaApertura(SqlConnection con, string idSucursal, string idUsuario, 
+         public void GetData(SqlConnection con, string idSucursal, string idUsuario, 
             ref List<MONEDA> listaMonedas, ref List<CAJA> listaCajas)
         {
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con))
@@ -220,9 +192,8 @@ namespace CapaDao
                 reader.Dispose();
             }
         }
-
         
-        public List<CAJA_APERTURA> listaAperturasCajasXusuario(SqlConnection con, string idSucursal, string idUsuario, string fecIni, string fecFin)
+        public List<CAJA_APERTURA> GetAllByFilters(SqlConnection con, string idSucursal, string idUsuario, string fecIni, string fecFin)
         {
             List<CAJA_APERTURA> lista = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con))

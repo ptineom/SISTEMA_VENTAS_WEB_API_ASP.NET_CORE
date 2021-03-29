@@ -72,7 +72,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 listaComprobantes = docVenta.listaComprobantes.Select(x => new
                 {
                     IdTipoComprobante = x.ID_TIPO_COMPROBANTE,
-                    NomTipoComprobante = ViewHelper.capitalizeFirstLetter(x.NOM_TIPO_COMPROBANTE),
+                    NomTipoComprobante = ViewHelper.CapitalizeFirstLetter(x.NOM_TIPO_COMPROBANTE),
                     FlgRendirSunat = x.FLG_RENDIR_SUNAT
                 }).ToList<object>();
             }
@@ -93,7 +93,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 listaTipPag = docVenta.listaTipPag.Select(x => new
                 {
                     IdTipoPago = x.ID_TIPO_PAGO,
-                    NomTipoPago = ViewHelper.capitalizeFirstLetter(x.NOM_TIPO_PAGO)
+                    NomTipoPago = ViewHelper.CapitalizeFirstLetter(x.NOM_TIPO_PAGO)
                 }).ToList<object>();
             }
 
@@ -102,7 +102,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 listaTipCon = docVenta.listaTipCon.Select(x => new
                 {
                     IdTipoCondicionPago = x.ID_TIPO_CONDICION_PAGO,
-                    NomTipoCondicionPago = ViewHelper.capitalizeFirstLetter(x.NOM_TIPO_CONDICION_PAGO),
+                    NomTipoCondicionPago = ViewHelper.CapitalizeFirstLetter(x.NOM_TIPO_CONDICION_PAGO),
                     FlgEvaluaCredito = x.FLG_EVALUA_CREDITO
                 }).ToList<object>();
             }
@@ -112,7 +112,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 listaEstados = docVenta.listaEstados.Select(x => new
                 {
                     IdEstado = x.ID_ESTADO,
-                    NomEstado = ViewHelper.capitalizeFirstLetter(x.NOM_ESTADO)
+                    NomEstado = ViewHelper.CapitalizeFirstLetter(x.NOM_ESTADO)
                 }).ToList<object>();
             }
 
@@ -122,7 +122,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 listaDepartamentos = docVenta.listaDepartamentos.Select(x => new
                 {
                     IdDepartamento = x.ID_UBIGEO,
-                    NomDepartamento = ViewHelper.capitalizeAll(x.UBIGEO_DEPARTAMENTO)
+                    NomDepartamento = ViewHelper.CapitalizeAll(x.UBIGEO_DEPARTAMENTO)
                 }).ToList<object>();
             }
 
@@ -253,7 +253,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                     NroSerie = docVenta.NRO_SERIE,
                     NroDocumento = Helper.ViewHelper.GetNroComprobante(docVenta.NRO_DOCUMENTO.ToString()),
                     IdCliente = docVenta.ID_CLIENTE,
-                    NomCliente = ViewHelper.capitalizeAll(docVenta.NOM_CLIENTE),
+                    NomCliente = ViewHelper.CapitalizeAll(docVenta.NOM_CLIENTE),
                     DirCliente = docVenta.DIR_CLIENTE,
                     IdTipoDocumento = docVenta.ID_TIPO_DOCUMENTO,
                     NroDocumentoCliente = docVenta.NRO_DOCUMENTO_CLIENTE,
@@ -282,9 +282,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 Detalle = docVenta.listaDetalle.Select(x => new
                 {
                     IdArticulo = x.ID_ARTICULO,
-                    NomArticulo = ViewHelper.capitalizeAll(x.NOM_ARTICULO),
+                    NomArticulo = ViewHelper.CapitalizeAll(x.NOM_ARTICULO),
                     IdUm = x.ID_UM,
-                    NomUm = ViewHelper.capitalizeAll(x.NOM_UM),
+                    NomUm = ViewHelper.CapitalizeAll(x.NOM_UM),
                     Cantidad = x.CANTIDAD,
                     TasDescuento = x.TAS_DESCUENTO,
                     NroFactor = x.NRO_FACTOR,
@@ -317,14 +317,14 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             {
                 Comprobante = x.COMPROBANTE,
                 DocCliente = x.DOC_CLIENTE,
-                NomCliente = ViewHelper.capitalizeAll(x.NOM_CLIENTE),
+                NomCliente = ViewHelper.CapitalizeAll(x.NOM_CLIENTE),
                 SgnMoneda = x.SGN_MONEDA,
                 TotVenta = x.TOT_VENTA,
                 FecDocumento = x.FEC_DOCUMENTO,
                 FlgEvaluaCredito = x.FLG_EVALUA_CREDITO,
-                NomTipoCondicionPago = ViewHelper.capitalizeFirstLetter(x.NOM_TIPO_CONDICION_PAGO),
+                NomTipoCondicionPago = ViewHelper.CapitalizeFirstLetter(x.NOM_TIPO_CONDICION_PAGO),
                 EstDocumento = x.EST_DOCUMENTO,
-                NomEstado = ViewHelper.capitalizeAll(x.NOM_ESTADO),
+                NomEstado = ViewHelper.CapitalizeAll(x.NOM_ESTADO),
                 IdTipoComprobante = x.ID_TIPO_COMPROBANTE,
                 NroSerie = x.NRO_SERIE,
                 NroDocumento = x.NRO_DOCUMENTO,

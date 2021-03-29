@@ -46,7 +46,7 @@ namespace CapaNegocio
                     var lista = _dao.GetAllByFamilyId(con, idGrupo, idFamilia);
 
                     if(lista!= null)
-                        lista.ForEach(x => x.NOM_UM = ViewHelper.capitalizeFirstLetter(x.NOM_UM));
+                        lista.ForEach(x => x.NOM_UM = ViewHelper.CapitalizeFirstLetter(x.NOM_UM));
 
                     _resultado.SetResultado(true, lista);
                 }
