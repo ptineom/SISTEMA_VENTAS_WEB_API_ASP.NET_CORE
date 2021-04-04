@@ -10,7 +10,7 @@ namespace CapaDao
 {
     public class DaoCajaApertura
     {
-        public CAJA_APERTURA GetOpenBox(SqlConnection con, string idSucursal, string idCaja, string idUsuario, int correlativo)
+        public CAJA_APERTURA GetStateBox(SqlConnection con, string idSucursal, string idCaja, string idUsuario, int correlativo)
         {
             CAJA_APERTURA modelo = null;
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con))
@@ -93,12 +93,13 @@ namespace CapaDao
                 cmd.Parameters.Add("@ID_SUCURSAL", SqlDbType.VarChar, 2).Value = oModelo.ID_SUCURSAL;
                 cmd.Parameters.Add("@ID_CAJA", SqlDbType.VarChar, 2).Value = oModelo.ID_CAJA;
                 cmd.Parameters.Add("@ID_USUARIO", SqlDbType.VarChar, 20).Value = oModelo.ID_USUARIO;
-                cmd.Parameters.Add("@CORRELATIVO_CA", SqlDbType.VarChar, 20).Value = oModelo.CORRELATIVO == 0 ? (object)DBNull.Value : oModelo.CORRELATIVO;
+                cmd.Parameters.Add("@CORRELATIVO_CA", SqlDbType.Int).Value = oModelo.CORRELATIVO == 0 ? (object)DBNull.Value : oModelo.CORRELATIVO;
                 cmd.Parameters.Add("@MONTO_APERTURA", SqlDbType.Decimal).Value = oModelo.MONTO_APERTURA == 0 ? (object)DBNull.Value : oModelo.MONTO_APERTURA;
                 cmd.Parameters.Add("@MONTO_COBRADO", SqlDbType.Decimal).Value = oModelo.MONTO_COBRADO == 0 ? (object)DBNull.Value : oModelo.MONTO_COBRADO;
                 cmd.Parameters.Add("@ID_MONEDA", SqlDbType.VarChar, 3).Value = string.IsNullOrEmpty(oModelo.ID_MONEDA) ? (object)DBNull.Value : oModelo.ID_MONEDA;
                 cmd.Parameters.Add("@ID_USUARIO_REGISTRO", SqlDbType.VarChar, 20).Value = oModelo.ID_USUARIO_REGISTRO;
                 cmd.Parameters.Add("@ITEM", SqlDbType.Int).Value = oModelo.ITEM == 0 ? (object)DBNull.Value : oModelo.ITEM;
+                cmd.Parameters.Add("@FECHA_CIERRE", SqlDbType.DateTime).Value = string.IsNullOrEmpty(oModelo.FECHA_CIERRE) ? (object)DBNull.Value : oModelo.FECHA_CIERRE;
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader != null)
                 {
@@ -146,7 +147,7 @@ namespace CapaDao
             return bExito;
         }
 
-         public void GetData(SqlConnection con, string idSucursal, string idUsuario, 
+        public void GetData(SqlConnection con, string idSucursal, string idUsuario, 
             ref List<MONEDA> listaMonedas, ref List<CAJA> listaCajas)
         {
             using (SqlCommand cmd = new SqlCommand("PA_MANT_CAJA_APERTURA", con))

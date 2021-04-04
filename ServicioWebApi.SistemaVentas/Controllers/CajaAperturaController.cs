@@ -4,6 +4,7 @@ using Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using ServicioWebApi.SistemaVentas.ViewModels;
 using SistemaVentas.WebApi.Servicios.Seguridad;
 using SistemaVentas.WebApi.ViewModels.Seguridad;
 using System;
@@ -73,6 +74,100 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 }).ToList<object>(),
                 MonedaLocal = monedaLocal
             });
+
+            return Ok(_resultado);
+        }
+
+        [HttpGet("GetStateBox")]
+        public async Task<IActionResult> GetStateBoxAsync()
+        {
+            _resultado = await Task.Run(()=> _brCajaApertura.GetStateBox(_idSucursal, _idUsuario));
+
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
+
+            if (_resultado.Data != null)
+            {
+                CAJA_APERTURA cajaApertura = (CAJA_APERTURA)_resultado.Data;
+
+                _resultado.Data = new
+                {
+                    IdCaja= cajaApertura.ID_CAJA,
+                    Correlativo = cajaApertura.CORRELATIVO,
+                    FechaApertura = cajaApertura.FECHA_APERTURA,
+                    MontoApertura = cajaApertura.MONTO_APERTURA,
+                    IdMoneda = cajaApertura.ID_MONEDA,
+                    SgnMoneda = cajaApertura.SGN_MONEDA
+                };
+            }
+
+            return Ok(_resultado);
+        }
+
+        [HttpGet("GetTotalsByUserId/{idCaja}/{correlativo}")]
+        public async Task<IActionResult> GetTotalsByUserIdAsync(string idCaja, int correlativo)
+        {
+            _resultado = await Task.Run(() => _brCajaApertura.GetTotalsByUserId(_idSucursal, idCaja, _idUsuario, correlativo));
+
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
+
+            if (_resultado.Data == null)
+                return NotFound(new { Message = "No se encontraron datos.", Status = "Error" });
+
+            if (_resultado.Data != null)
+            {
+                DINERO_EN_CAJA dineroEnCaja = (DINERO_EN_CAJA)_resultado.Data;
+
+                _resultado.Data = new
+                {
+                    MontoAperturaCaja = dineroEnCaja.MONTO_APERTURA_CAJA,
+                    MontoCobradoContado = dineroEnCaja.MONTO_COBRADO_CONTADO,
+                    MontoCobradoCredito = dineroEnCaja.MONTO_COBRADO_CREDITO,
+                    MontoCajaOtrosIngreso = dineroEnCaja.MONTO_CAJA_OTROS_INGRESO,
+                    MontoCajaSalida = dineroEnCaja.MONTO_CAJA_SALIDA,
+                    MontoTotal = dineroEnCaja.MONTO_TOTAL
+                };
+            }
+
+            return Ok(_resultado);
+        }
+
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterAsync([FromBody] CajaAbiertaRequest request)
+        {
+
+            _resultado = await Task.Run(() => _brCajaApertura.Register(new CAJA_APERTURA()
+            {
+                ACCION = request.Accion,
+                ID_SUCURSAL = _idSucursal,
+                ID_CAJA = request.IdCaja,
+                ID_USUARIO = _idUsuario,
+                MONTO_APERTURA = request.MontoApertura,
+                MONTO_COBRADO = request.MontoTotal,
+                FECHA_CIERRE = request.FechaCierre,
+                ID_MONEDA = request.IdMoneda,
+                CORRELATIVO = request.Correlativo,
+                ID_USUARIO_REGISTRO = _idUsuario
+            }));
+
+            if (!_resultado.Resultado)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
+
+            if (_resultado.Data != null)
+            {
+                CAJA_APERTURA cajaApertura = (CAJA_APERTURA)_resultado.Data;
+
+                _resultado.Data = new
+                {
+                    IdCaja = cajaApertura.ID_CAJA,
+                    Correlativo = cajaApertura.CORRELATIVO,
+                    FechaApertura = cajaApertura.FECHA_APERTURA,
+                    MontoApertura = cajaApertura.MONTO_APERTURA,
+                    IdMoneda = cajaApertura.ID_MONEDA,
+                    SgnMoneda = cajaApertura.SGN_MONEDA
+                };
+            }
 
             return Ok(_resultado);
         }

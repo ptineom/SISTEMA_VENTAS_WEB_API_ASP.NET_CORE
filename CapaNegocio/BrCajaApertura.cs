@@ -26,14 +26,14 @@ namespace CapaNegocio
         }
 
         #region Proceso CajaApertura
-        public ResultadoOperacion GetOpenBox(string idSucursal, string idCaja, string idUsuario, int correlativo)
+        public ResultadoOperacion GetStateBox(string idSucursal, string idUsuario)
         {
             using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
                     con.Open();
-                    var modelo = _dao.GetOpenBox(con, idSucursal,idCaja, idUsuario, correlativo);
+                    var modelo = _dao.GetStateBox(con, idSucursal, "", idUsuario, 0);
 
                     _resultado.SetResultado(true, modelo);
                 }
@@ -45,7 +45,26 @@ namespace CapaNegocio
             }
             return _resultado;
         }
-        public ResultadoOperacion totalCobranzaXcaja(string idSucursal, string idCaja, string idUsuario, int correlativo)
+        public ResultadoOperacion GetStateBox(string idSucursal, string idCaja, string idUsuario, int correlativo)
+        {
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
+            {
+                try
+                {
+                    con.Open();
+                    var modelo = _dao.GetStateBox(con, idSucursal, idCaja, idUsuario, correlativo);
+
+                    _resultado.SetResultado(true, modelo);
+                }
+                catch (Exception ex)
+                {
+                    Elog.save(this, ex);
+                    _resultado.SetResultado(false, ex.Message);
+                }
+            }
+            return _resultado;
+        }
+        public ResultadoOperacion GetTotalsByUserId(string idSucursal, string idCaja, string idUsuario, int correlativo)
         {
             ResultadoOperacion oResultado = new ResultadoOperacion();
             using (SqlConnection con = new SqlConnection(_conexion.getConexion))
@@ -109,7 +128,7 @@ namespace CapaNegocio
             return oResultado;
         }
 
-        public ResultadoOperacion GetData(string idSucursal, string idUsuario, 
+        public ResultadoOperacion GetData(string idSucursal, string idUsuario,
             ref List<MONEDA> listaMonedas, ref List<CAJA> listaCajas)
         {
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
@@ -117,7 +136,7 @@ namespace CapaNegocio
                 try
                 {
                     con.Open();
-                    _dao.GetData(con, idSucursal, idUsuario, ref listaMonedas,ref listaCajas);
+                    _dao.GetData(con, idSucursal, idUsuario, ref listaMonedas, ref listaCajas);
 
                     _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
                 }
@@ -149,7 +168,7 @@ namespace CapaNegocio
             }
             return _resultado;
         }
-       
+
         #endregion
 
         #region Consultas y reportes

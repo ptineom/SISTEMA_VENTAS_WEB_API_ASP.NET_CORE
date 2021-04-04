@@ -54,7 +54,7 @@ namespace CapaDao
             return lista;
         }
        
-        public List<ARTICULO> GetAllByFiltersHelper(SqlConnection con, string accion, string idSucursal, string tipoFiltro, string filtro)
+        public List<ARTICULO> GetAllByFiltersHelper(SqlConnection con, string accion, string idSucursal, string tipoFiltro, string filtro, bool flgCompra)
         {
             List<ARTICULO> lista = null;
             ARTICULO modelo = null;
@@ -65,6 +65,7 @@ namespace CapaDao
                 cmd.Parameters.Add("@ID_SUCURSAL", SqlDbType.VarChar, 4).Value = idSucursal;
                 cmd.Parameters.Add("@TIPO_FILTRO", SqlDbType.VarChar, 20).Value = string.IsNullOrEmpty(tipoFiltro) ? (object)DBNull.Value : tipoFiltro;
                 cmd.Parameters.Add("@FILTRO", SqlDbType.VarChar, 160).Value = filtro;
+                cmd.Parameters.Add("@FLG_COMPRA", SqlDbType.Bit).Value = flgCompra;
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader != null)
                 {
