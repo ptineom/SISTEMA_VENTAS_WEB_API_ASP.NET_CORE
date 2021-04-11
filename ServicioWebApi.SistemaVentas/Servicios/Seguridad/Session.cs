@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using SistemaVentas.WebApi.ViewModels.Seguridad;
-using SistemaVentas.WebApi.ViewModels.Usuario;
+using ServicioWebApi.SistemaVentas.Models.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.Servicios.Seguridad
+namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
 {
     public class Session
     {
@@ -31,16 +30,16 @@ namespace SistemaVentas.WebApi.Servicios.Seguridad
             return bExiste;
         }
 
-        public UsuarioViewModel GetUserLogged()
+        public UsuarioModel GetUserLogged()
         {
-            UsuarioViewModel modelo = null;
+            UsuarioModel modelo = null;
             if (_accessor.HttpContext.User != null && _accessor.HttpContext.User.Identity.IsAuthenticated)
             {
                 ClaimsIdentity identity = (ClaimsIdentity)_accessor.HttpContext.User.Identity;
                 if (identity != null)
                 {
                     var claims = identity.Claims;
-                    modelo = new UsuarioViewModel
+                    modelo = new UsuarioModel
                     {
                         IdUsuario = claims.FirstOrDefault(x => x.Type == ClaimTypes.Name).Value,
                         NomUsuario = claims.FirstOrDefault(x => x.Type == "FullName").Value,

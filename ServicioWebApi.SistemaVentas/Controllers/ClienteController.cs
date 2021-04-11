@@ -3,9 +3,9 @@ using Entidades;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using ServicioWebApi.SistemaVentas.ViewModels;
-using SistemaVentas.WebApi.Servicios.Seguridad;
-using SistemaVentas.WebApi.ViewModels.Seguridad;
+using ServicioWebApi.SistemaVentas.Models.Request;
+using ServicioWebApi.SistemaVentas.Models.ViewModel;
+using ServicioWebApi.SistemaVentas.Servicios.Seguridad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +31,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _brCliente = new BrCliente(_configuration);
             _accessor = accessor;
 
-            UsuarioViewModel usuario = new Session(_accessor).GetUserLogged();
+            UsuarioModel usuario = new Session(_accessor).GetUserLogged();
             _idUsuario = usuario.IdUsuario;
             _idSucursal = usuario.IdSucursal;
         }
@@ -91,7 +91,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterAsync(RequestCliente request)
+        public async Task<IActionResult> RegisterAsync(ClienteRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });

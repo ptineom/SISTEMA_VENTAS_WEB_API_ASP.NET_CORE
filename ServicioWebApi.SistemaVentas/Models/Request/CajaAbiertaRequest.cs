@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ServicioWebApi.SistemaVentas.ViewModels
+namespace ServicioWebApi.SistemaVentas.Models.Request
 {
     public class CajaAbiertaRequest
     {
@@ -15,6 +15,8 @@ namespace ServicioWebApi.SistemaVentas.ViewModels
         public decimal MontoTotal { get; set; }
         public string FechaCierre { get; set; }
         public string IdMoneda { get; set; }
+        public bool flgReaperturado { get; set; }
+        public int Item { get; set; }
 
     }
 }

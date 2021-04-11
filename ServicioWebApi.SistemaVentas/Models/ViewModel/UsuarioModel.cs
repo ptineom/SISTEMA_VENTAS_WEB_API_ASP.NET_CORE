@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.ViewModels.Seguridad
+namespace ServicioWebApi.SistemaVentas.Models.ViewModel
 {
-    public class UsuarioViewModel
+    public class UsuarioModel
     {
         public string IdUsuario { get; set; }
         public string NomUsuario { get; set; }

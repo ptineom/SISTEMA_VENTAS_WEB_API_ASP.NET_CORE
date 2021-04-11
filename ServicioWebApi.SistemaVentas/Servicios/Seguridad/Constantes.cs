@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.Seguridad
+namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
 {
     public class Constantes
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.ViewModels.Venta
+namespace ServicioWebApi.SistemaVentas.Models.ViewModel
 {
-    public class VentaPorCodigo
+    public class VentaPorCodigoModel
     {
         public string idTipoComprobante { get; set; }
         public string nroSerie { get; set; }
@@ -35,9 +35,9 @@ namespace SistemaVentas.WebApi.ViewModels.Venta
         public int correlativoCa { get; set; }
         public string nomCaja { get; set; }
         public string nomUsuarioCaja { get; set; }
-        public List<VentaDetallePorCodigo> detalleVenta { get; set; }
+        public List<VentaDetallePorCodigoModel> detalleVenta { get; set; }
     }
-    public class VentaDetallePorCodigo
+    public class VentaDetallePorCodigoModel
     {
         public string idArticulo { get; set; }
         public string nomArticulo { get; set; }

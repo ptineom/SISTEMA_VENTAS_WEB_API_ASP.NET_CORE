@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using ServicioWebApi.SistemaVentas.Models.Request;
+using ServicioWebApi.SistemaVentas.Models.ViewModel;
 using ServicioWebApi.SistemaVentas.Servicios.Seguridad;
-using SistemaVentas.WebApi.Servicios.Seguridad;
-using SistemaVentas.WebApi.ViewModels;
-using SistemaVentas.WebApi.ViewModels.Seguridad;
+using SistemaVentas.WebApi.Models.Request;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,7 +48,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
 
         [HttpPost("ValidateUser")]
         [AllowAnonymous]
-        public async Task<IActionResult> ValidateUserAsync([FromBody] RequestLoginViewModel request)
+        public async Task<IActionResult> ValidateUserAsync([FromBody] LoginRequest request)
         {
 
             string token = string.Empty;
@@ -120,7 +120,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
 
         [HttpPost("GenerateToken")]
         [AllowAnonymous]
-        public async Task<IActionResult> GenerateTokenAsync([FromBody] RequestUsuarioSucursalViewModel request)
+        public async Task<IActionResult> GenerateTokenAsync([FromBody] UsuarioSucursalRequest request)
         {
             string token = string.Empty;
             if (ModelState.IsValid)
@@ -168,7 +168,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
 
         [AllowAnonymous]
         [HttpPost("GenerateTokenWithRefreshToken")]
-        public async Task<IActionResult> GenerateTokenWithRefreshTokenAsync([FromBody] RequestRefreshTokenViewModel request)
+        public async Task<IActionResult> GenerateTokenWithRefreshTokenAsync([FromBody] RefreshTokenRequest request)
         {
             //Generación de un nuevo accesToken con el refrehToken.
             BrRefreshToken br = new BrRefreshToken(_configuration);
@@ -195,10 +195,10 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             .Replace("NOM_USUARIO", "NomUsuario").Replace("NOM_ROL", "NomRol").Replace("ID_SUCURSAL", "IdSucursal")
             .Replace("NOM_SUCURSAL", "NomSucursal").Replace("FLG_CTRL_TOTAL", "FlgCtrlTotal");
 
-            UsuarioViewModel usuarioViewModel = JsonSerializer.Deserialize<UsuarioViewModel>(jsonClaims);
+            UsuarioModel usuarioViewModel = JsonSerializer.Deserialize<UsuarioModel>(jsonClaims);
 
             //Generamos el accessToken y refreshToken con el modelo.
-            TokensViewModel tokens = new TokenGenerator(_configuration).GetTokens(usuarioViewModel);
+            TokenModel tokens = new TokenGenerator(_configuration).GetTokens(usuarioViewModel);
 
             return Ok(new { Token = tokens.AccessToken, tokens.RefreshToken });
         }
@@ -211,11 +211,11 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             string avatar = servicioMenu.avatarB64(modelo.FOTO);
 
             //Construímos el menú.
-            MenuItem menuItem = servicioMenu.GetMenuByUserId(modelo.ID_USUARIO);
+            MenuItemModel menuItem = servicioMenu.GetMenuByUserId(modelo.ID_USUARIO);
 
             //Generamos el accessToken y refreshToken.
             TokenGenerator tokenGenerator = new TokenGenerator(_configuration);
-            TokensViewModel tokens = tokenGenerator.GetTokens(new UsuarioViewModel()
+            TokenModel tokens = tokenGenerator.GetTokens(new UsuarioModel()
             {
                 IdUsuario = modelo.ID_USUARIO,
                 NomUsuario = modelo.NOM_USUARIO,

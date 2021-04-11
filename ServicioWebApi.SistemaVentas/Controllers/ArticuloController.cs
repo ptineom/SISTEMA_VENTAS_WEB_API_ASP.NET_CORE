@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SistemaVentas.WebApi.Servicios.Seguridad;
-using SistemaVentas.WebApi.ViewModels;
-using SistemaVentas.WebApi.ViewModels.Seguridad;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ServicioWebApi.SistemaVentas.Servicios.Seguridad;
+using ServicioWebApi.SistemaVentas.Models.ViewModel;
+using ServicioWebApi.SistemaVentas.Models.Request;
 
 namespace ServicioWebApi.SistemaVentas.Controllers
 {
@@ -37,7 +37,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _resultado = resultado;
             _brArticulo = new BrArticulo(_configuration, _environment);
 
-            UsuarioViewModel usuario = new Session(_accessor).GetUserLogged();
+            UsuarioModel usuario = new Session(_accessor).GetUserLogged();
             _idUsuario = usuario.IdUsuario;
             _idSucursal = usuario.IdSucursal;
         }
@@ -144,7 +144,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterAsync([FromForm] RequestGrabarArticulo request)
+        public async Task<IActionResult> RegisterAsync([FromForm] ArticuloRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });

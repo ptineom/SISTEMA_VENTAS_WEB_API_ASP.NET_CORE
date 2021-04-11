@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SistemaVentas.WebApi.ViewModels.Usuario;
+using ServicioWebApi.SistemaVentas.Models.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +33,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         }
 
         [HttpPost("ChangePassword")]
-        public async Task<IActionResult> ChangePasswordAsync([FromBody] CambiarContraseniaViewModel request)
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] CambiarContraseniaRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
@@ -59,7 +59,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
 
         [HttpPost("GenerateTokenRecoveryPassword")]
         [AllowAnonymous]
-        public async Task<IActionResult> GenerateTokenRecoveryPasswordAsync([FromBody] RequestRecuperarContraseniaViewModel request)
+        public async Task<IActionResult> GenerateTokenRecoveryPasswordAsync([FromBody] RecuperarContraseniaRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
@@ -97,7 +97,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
 
         [HttpPost("RestorePassword")]
         [AllowAnonymous]
-        public async Task<IActionResult> RestorePasswordAsync([FromBody] RequestNuevaContraseniaViewModel request)
+        public async Task<IActionResult> RestorePasswordAsync([FromBody] NuevaContraseniaRequest request)
         {
             if (!ModelState.IsValid)
             {

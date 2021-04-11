@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.ViewModels.Usuario
+namespace ServicioWebApi.SistemaVentas.Models.Request
 {
-    public class RequestRecuperarContraseniaViewModel
+    public class RecuperarContraseniaRequest
     {
         [Required(ErrorMessage = "Debe de ingresar el {0}")]
         [EmailAddress(ErrorMessage = "Formato de {0} mal ingresado")]

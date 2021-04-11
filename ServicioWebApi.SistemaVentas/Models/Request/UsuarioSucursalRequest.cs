@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.ViewModels.Seguridad
+namespace ServicioWebApi.SistemaVentas.Models.Request
 {
-    public class RequestUsuarioSucursalViewModel
+    public class UsuarioSucursalRequest
     {
         [Required(ErrorMessage ="Debe ingresar el {0}")]
         public string IdSucursal { get; set; }
@@ -19,7 +19,7 @@ namespace SistemaVentas.WebApi.ViewModels.Seguridad
         public string Password { get; set; }
     }
 
-    public class RequestCambiarSucursalViewModel
+    public class CambiarSucursalRequest
     {
         [Required(ErrorMessage = "Debe ingresar el {0}")]
         public string IdSucursal { get; set; }

@@ -8,16 +8,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using SistemaVentas.WebApi.ViewModels.Usuario;
-
 using System.Security.Cryptography;
-using SistemaVentas.WebApi.ViewModels.Seguridad;
 using CapaNegocio;
 using Entidades;
-using SistemaVentas.WebApi.ViewModels;
 using System.Text.Json;
+using ServicioWebApi.SistemaVentas.Models.ViewModel;
 
-namespace SistemaVentas.WebApi.Servicios.Seguridad
+namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
 {
     public class TokenGenerator
     {
@@ -28,7 +25,7 @@ namespace SistemaVentas.WebApi.Servicios.Seguridad
         }
 
         #region "Métodos públicos"
-        public TokensViewModel GetTokens(UsuarioViewModel modelo)
+        public TokenModel GetTokens(UsuarioModel modelo)
         {
             //Generación de jwt
             TokenGenerator tokenGenerator = new TokenGenerator(_configuracion);
@@ -61,13 +58,13 @@ namespace SistemaVentas.WebApi.Servicios.Seguridad
                 JSON_CLAIMS = jsonClaims
             });
 
-            return new TokensViewModel() { AccessToken = token, RefreshToken = refreshToken };
+            return new TokenModel() { AccessToken = token, RefreshToken = refreshToken };
         }
 
         #endregion
 
         #region "Métodos privados"
-        private string GenerateJWT(UsuarioViewModel usuario)
+        private string GenerateJWT(UsuarioModel usuario)
         {
             var audienceToken = _configuracion.GetSection("AppSettings:Jwt:AudienceToken").Value;
             var issuerToken = _configuracion.GetSection("AppSettings:Jwt:IssuerToken").Value;

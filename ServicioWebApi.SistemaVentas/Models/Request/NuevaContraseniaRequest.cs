@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.ViewModels.Usuario
+namespace ServicioWebApi.SistemaVentas.Models.Request
 {
-    public class RequestNuevaContraseniaViewModel
+    public class NuevaContraseniaRequest
     {
         [Display(Name = "Nueva contraseña")]
         [Required(ErrorMessage = "Debe de ingresar la {0}")]

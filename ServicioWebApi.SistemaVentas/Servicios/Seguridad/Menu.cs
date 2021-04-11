@@ -3,7 +3,7 @@ using Entidades;
 using Helper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using SistemaVentas.WebApi.ViewModels;
+using ServicioWebApi.SistemaVentas.Models.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +31,7 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
         /// </summary>
         /// <param name="idUsuario">Usuario por el que se hará el filtrado del los menús</param>
         /// <returns></returns>
-        public MenuItem GetMenuByUserId(string idUsuario)
+        public MenuItemModel GetMenuByUserId(string idUsuario)
         {
             BrAplicacion brAplicacion = new BrAplicacion(_configuration);
 
@@ -42,10 +42,10 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
                 throw new Exception(_resultado.Mensaje);
 
             //Construímos el menú a requerimiento del cliente.
-            MenuItem menuItem = null;
+            MenuItemModel menuItem = null;
             if (_resultado.Data != null)
             {
-                menuItem = new MenuItem();
+                menuItem = new MenuItemModel();
                 List<APLICACION> listaGeneral = (List<APLICACION>)_resultado.Data;
 
                 //Raiz del arbol el cual dará inicio.
@@ -85,7 +85,7 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
         #endregion
 
         #region "Métodos privados"
-        private void setChildren(APLICACION aplicacion, List<APLICACION> listaGeneral, MenuItem menuItem)
+        private void setChildren(APLICACION aplicacion, List<APLICACION> listaGeneral, MenuItemModel menuItem)
         {
             menuItem.Label = aplicacion.NOM_APLICACION;
             menuItem.Icon = aplicacion.ICON_SPA;
@@ -113,10 +113,10 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
             var childs = listaGeneral.Where(x => x.ID_APLICACION_PADRE == aplicacion.ID_APLICACION).ToList();
             if (childs.Count > 0)
             {
-                List<MenuItem> listaSubMenu = new List<MenuItem>();
+                List<MenuItemModel> listaSubMenu = new List<MenuItemModel>();
                 foreach (var child in childs)
                 {
-                    MenuItem subMenu = new MenuItem();
+                    MenuItemModel subMenu = new MenuItemModel();
                     setChildren(child, listaGeneral, subMenu);
                     listaSubMenu.Add(subMenu);
                 };

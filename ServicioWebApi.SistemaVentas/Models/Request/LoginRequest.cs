@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.ViewModels.Seguridad
+namespace SistemaVentas.WebApi.Models.Request
 {
-    public class RequestLoginViewModel
+    public class LoginRequest
     {
         [Required(ErrorMessage = "Debe de ingresar el {0} ")]
         [Display(Name = "Usuario")]

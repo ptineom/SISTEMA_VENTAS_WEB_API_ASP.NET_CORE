@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaVentas.WebApi.ViewModels
+namespace ServicioWebApi.SistemaVentas.Models.Request
 {
-    public class RequestGrabarArticulo
+    public class ArticuloRequest
     {
         public string Accion { get; set; }
         public string IdArticulo { get; set; }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ServicioWebApi.SistemaVentas.ViewModels
+namespace ServicioWebApi.SistemaVentas.Models.Request
 {
-    public class RequestCliente
+    public class ClienteRequest
     {
         public string IdCliente { get; set; }
         public int IdTipoDocumento { get; set; }

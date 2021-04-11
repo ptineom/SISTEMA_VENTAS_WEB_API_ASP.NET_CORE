@@ -108,6 +108,30 @@ namespace CapaNegocio
             return _resultado;
         }
 
+        public ResultadoOperacion ReopenBox(CAJA_APERTURA oModelo)
+        {
+            SqlTransaction trx = null;
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
+            {
+                try
+                {
+                    con.Open();
+                    trx = con.BeginTransaction();
+                     _dao.ReopenBox(con, trx, oModelo);
+
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
+                    trx.Commit();
+                }
+                catch (Exception ex)
+                {
+                    _resultado.SetResultado(false, ex.Message.ToString());
+                    trx.Rollback();
+                    Elog.save(this, ex);
+                }
+            }
+            return _resultado;
+        }
+
         public ResultadoOperacion ValidateBox(string idSucursal, string idCaja, string idUsuario, int correlativoCa)
         {
             ResultadoOperacion oResultado = new ResultadoOperacion();
@@ -149,14 +173,14 @@ namespace CapaNegocio
             return _resultado;
         }
 
-        public ResultadoOperacion GetAllByFilters(string idSucursal, string idUsuario, string fecIni, string fecFin)
+        public ResultadoOperacion GetAllByFilters(string idSucursal,string idCaja, string idUsuario, string fecIni, string fecFin)
         {
             using (SqlConnection con = new SqlConnection(Conexion.sConexion))
             {
                 try
                 {
                     con.Open();
-                    var lista = _dao.GetAllByFilters(con, idSucursal, idUsuario, fecIni, fecFin);
+                    var lista = _dao.GetAllByFilters(con, idSucursal, idCaja, idUsuario, fecIni, fecFin);
 
                     _resultado.SetResultado(true, lista);
                 }
@@ -164,6 +188,26 @@ namespace CapaNegocio
                 {
                     Elog.save(this, ex);
                     _resultado.SetResultado(false, ex.Message);
+                }
+            }
+            return _resultado;
+        }
+
+        public ResultadoOperacion GetDataQuerys(string idSucursal, ref List<USUARIO> listaUsuario, ref List<CAJA> listaCaja)
+        {
+            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            {
+                try
+                {
+                    con.Open();
+                    _dao.GetDataQuerys(con, idSucursal, ref listaUsuario, ref listaCaja);
+
+                    _resultado.SetResultado(true, Helper.Constantes.sMensajeGrabadoOk);
+                }
+                catch (Exception ex)
+                {
+                    _resultado.SetResultado(false, ex.Message.ToString());
+                    Elog.save(this, ex);
                 }
             }
             return _resultado;

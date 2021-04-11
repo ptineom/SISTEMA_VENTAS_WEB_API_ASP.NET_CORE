@@ -4,9 +4,9 @@ using Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SistemaVentas.WebApi.Servicios.Seguridad;
-using SistemaVentas.WebApi.ViewModels.Seguridad;
-using SistemaVentas.WebApi.ViewModels.Venta;
+using ServicioWebApi.SistemaVentas.Models.Request;
+using ServicioWebApi.SistemaVentas.Models.ViewModel;
+using ServicioWebApi.SistemaVentas.Servicios.Seguridad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +31,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             _configuration = configuration;
             _resultado = resultado;
             _accessor = accessor;
-            UsuarioViewModel usuario = new Session(_accessor).GetUserLogged();
+            UsuarioModel usuario = new Session(_accessor).GetUserLogged();
             _idUsuario = usuario.IdUsuario;
             _idSucursal = usuario.IdSucursal;
             _brVenta = new BrVenta(_configuration);
@@ -171,7 +171,7 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterAsync(RequestVenta request)
+        public async Task<IActionResult> RegisterAsync(VentaRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
@@ -301,9 +301,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
 
         [HttpGet("GetAllByFilters")]
         public async Task<IActionResult> GetAllByFiltersAsync([FromQuery] string idCliente, [FromQuery] string idTipoComprobante, [FromQuery] string nroSerie,
-            [FromQuery] int nroDocumento, [FromQuery] string fechaInicio, [FromQuery] string fechaFinal, [FromQuery] int idEstado)
+            [FromQuery] int nroDocumento, [FromQuery] string fechaInicial, [FromQuery] string fechaFinal, [FromQuery] int idEstado)
         {
-            _resultado = await Task.Run(() => _brVenta.GetAllByFilters(_idSucursal, idCliente, idTipoComprobante, nroSerie, nroDocumento, fechaInicio, fechaFinal, idEstado));
+            _resultado = await Task.Run(() => _brVenta.GetAllByFilters(_idSucursal, idCliente, idTipoComprobante, nroSerie, nroDocumento, fechaInicial, fechaFinal, idEstado));
 
             if (!_resultado.Resultado)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });

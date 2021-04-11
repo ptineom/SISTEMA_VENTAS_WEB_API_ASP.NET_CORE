@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SistemaVentas.WebApi.Servicios.Seguridad;
-using SistemaVentas.WebApi.ViewModels;
-using SistemaVentas.WebApi.ViewModels.Seguridad;
+using ServicioWebApi.SistemaVentas.Models.Request;
+using ServicioWebApi.SistemaVentas.Models.ViewModel;
+using ServicioWebApi.SistemaVentas.Servicios.Seguridad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,23 +43,23 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         }
 
         [HttpPost("ChangeSucursal")]
-        public IActionResult ChangeSucursal([FromBody] RequestCambiarSucursalViewModel sucursal)
+        public IActionResult ChangeSucursal([FromBody] CambiarSucursalRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Mesagge = ModelState, Status = "Error" });
 
             //Obtenemos el usuario en sessión.
-            UsuarioViewModel userCurrent = new Session(_accessor).GetUserLogged();
+            UsuarioModel userCurrent = new Session(_accessor).GetUserLogged();
 
             //Generamos el accessToken y refreshToken.
             TokenGenerator tokenGenerator = new TokenGenerator(_configuration);
-            TokensViewModel tokens = tokenGenerator.GetTokens(new UsuarioViewModel()
+            TokenModel tokens = tokenGenerator.GetTokens(new UsuarioModel()
             {
                 IdUsuario = userCurrent.IdUsuario,
                 NomUsuario = userCurrent.NomUsuario,
                 NomRol = userCurrent.NomRol,
-                IdSucursal = sucursal.IdSucursal,
-                NomSucursal = sucursal.NomSucursal,
+                IdSucursal = request.IdSucursal,
+                NomSucursal = request.NomSucursal,
                 FlgCtrlTotal = userCurrent.FlgCtrlTotal,
                 IpAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString()
             });
