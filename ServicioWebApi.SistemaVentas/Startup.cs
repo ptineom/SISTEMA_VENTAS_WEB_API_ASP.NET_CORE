@@ -18,6 +18,9 @@ using System.Text;
 using System.Threading.Tasks;
 using CapaNegocio;
 using Microsoft.AspNetCore.Http;
+using ServicioWebApi.SistemaVentas.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using ServicioWebApi.SistemaVentas.Servicios.Middleware;
 
 namespace ServicioWebApi.SistemaVentas
 {
@@ -45,9 +48,10 @@ namespace ServicioWebApi.SistemaVentas
             {
                 options.AddPolicy(_myCors, (builder) =>
                 {
+                    builder.WithOrigins("http://localhost:8080");
                     builder.AllowAnyHeader();
                     builder.AllowAnyMethod();
-                    builder.WithOrigins("*");
+                    builder.AllowCredentials();
                 });
             });
 
@@ -60,6 +64,7 @@ namespace ServicioWebApi.SistemaVentas
                 options.Filters.Add(new AuthorizeFilter(policy));
                 //options.Filters.Add(new AuthorizationCustomAttribute());
             });
+
             //services.AddAuthorization(options =>
             //{
             //    options.AddPolicy("ApiUser", pol => pol.RequireClaim(ClaimTypes.Role, "Admin"));
@@ -82,6 +87,19 @@ namespace ServicioWebApi.SistemaVentas
                     ValidAudience = Configuration["AppSettings:Jwt:AudienceToken"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(HashHelper.GetHash256(Configuration["AppSettings:Jwt:SecretKey"])))
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = (context) =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/cambiarestadocajahub"))) 
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             services.AddTransient<IResultadoOperacion, ResultadoOperacion>();
@@ -93,6 +111,8 @@ namespace ServicioWebApi.SistemaVentas
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ServicioWebApi.SistemaVentas", Version = "v1" });
             });
+
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -111,12 +131,17 @@ namespace ServicioWebApi.SistemaVentas
 
             //Cors
             app.UseCors(_myCors);
+
+            //Middleware para signalr
+            //app.UseMiddleware<WebSocketsMiddleware>();
+
             //Jwt
             app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<CambiarEstadoCajaHub>("/cambiarestadocajahub");
             });
         }
     }

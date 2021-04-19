@@ -14,5 +14,6 @@ namespace ServicioWebApi.SistemaVentas.Models.ViewModel
         public string NomSucursal { get; set; }
         public bool FlgCtrlTotal { get; set; }
         public string IpAddress { get; set; }
+        public string NameIdentifier { get; set; }
     }
 }

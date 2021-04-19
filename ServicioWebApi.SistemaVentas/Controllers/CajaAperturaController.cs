@@ -3,7 +3,9 @@ using Entidades;
 using Helper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using ServicioWebApi.SistemaVentas.Hubs;
 using ServicioWebApi.SistemaVentas.Models.Request;
 using ServicioWebApi.SistemaVentas.Models.ViewModel;
 using ServicioWebApi.SistemaVentas.Servicios.Seguridad;
@@ -24,8 +26,10 @@ namespace ServicioWebApi.SistemaVentas.Controllers
         private BrCajaApertura _brCajaApertura = null;
         private string _idSucursal;
         private string _idUsuario;
+        private IHubContext<CambiarEstadoCajaHub> _hubContext;
 
-        public CajaAperturaController(IResultadoOperacion resultado, IConfiguration configuration, IHttpContextAccessor accessor)
+        public CajaAperturaController(IResultadoOperacion resultado, IConfiguration configuration, 
+            IHttpContextAccessor accessor, IHubContext<CambiarEstadoCajaHub> hubContext)
         {
             _configuration = configuration;
             _resultado = resultado;
@@ -35,6 +39,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
             UsuarioModel usuario = new Session(_accessor).GetUserLogged();
             _idUsuario = usuario.IdUsuario;
             _idSucursal = usuario.IdSucursal;
+
+            //Hub para signalr
+            _hubContext = hubContext;
         }
 
         [HttpGet("GetData")]
@@ -99,7 +106,11 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                     IdMoneda = cajaApertura.ID_MONEDA,
                     SgnMoneda = cajaApertura.SGN_MONEDA,
                     FlgReaperturado = cajaApertura.FLG_REAPERTURADO,
-                    Item = cajaApertura.ITEM
+                    Item = cajaApertura.ITEM,
+                    FlgCierreDiferido = cajaApertura.FLG_CIERRE_DIFERIDO,
+                    FechaCierre = cajaApertura.FECHA_CIERRE,
+                    HoraCierre = cajaApertura.HORA_CIERRE,
+                    NomCaja = cajaApertura.NOM_CAJA
                 };
             }
 
@@ -151,8 +162,9 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 ID_MONEDA = request.IdMoneda,
                 CORRELATIVO = request.Correlativo,
                 ID_USUARIO_REGISTRO = _idUsuario,
-                FLG_REAPERTURADO = request.flgReaperturado,
-                ITEM = request.Item
+                FLG_REAPERTURADO = request.FlgReaperturado,
+                ITEM = request.Item,
+                FLG_CIERRE_DIFERIDO = request.FlgCierreDiferido
             }));
 
             if (!_resultado.Resultado)
@@ -171,7 +183,8 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                     IdMoneda = cajaApertura.ID_MONEDA,
                     SgnMoneda = cajaApertura.SGN_MONEDA,
                     FlgReaperturado = cajaApertura.FLG_REAPERTURADO,
-                    Item = cajaApertura.ITEM
+                    Item = cajaApertura.ITEM,
+                    NomCaja = cajaApertura.NOM_CAJA
                 };
             }
 
@@ -258,13 +271,16 @@ namespace ServicioWebApi.SistemaVentas.Controllers
                 ACCION = "REA",
                 ID_SUCURSAL = _idSucursal,
                 ID_CAJA = request.IdCaja,
-                ID_USUARIO = _idUsuario,
+                ID_USUARIO = request.IdUsuario,
                 CORRELATIVO = request.Correlativo,
                 ID_USUARIO_REGISTRO = _idUsuario
             }));
 
             if (!_resultado.Resultado)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = _resultado.Mensaje, Status = "Error" });
+
+            //Enviamos el mensaje signalr al usuario indicado
+            await _hubContext.Clients.User(request.IdUsuario).SendAsync("actualizarEstadoCaja");
 
             return Ok(_resultado);
         }

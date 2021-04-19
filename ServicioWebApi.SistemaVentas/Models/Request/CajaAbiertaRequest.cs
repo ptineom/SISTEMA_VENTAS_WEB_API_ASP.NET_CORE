@@ -15,8 +15,8 @@ namespace ServicioWebApi.SistemaVentas.Models.Request
         public decimal MontoTotal { get; set; }
         public string FechaCierre { get; set; }
         public string IdMoneda { get; set; }
-        public bool flgReaperturado { get; set; }
+        public bool FlgReaperturado { get; set; }
         public int Item { get; set; }
-
+        public bool FlgCierreDiferido { get; set; }
     }
 }

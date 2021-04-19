@@ -44,12 +44,14 @@ namespace CapaDao
                             modelo.FECHA_APERTURA = reader.GetString(reader.GetOrdinal("FECHA_APERTURA"));
                             modelo.MONTO_APERTURA = reader.GetDecimal(reader.GetOrdinal("MONTO_APERTURA"));
                             modelo.FECHA_CIERRE = reader.GetString(reader.GetOrdinal("FECHA_CIERRE"));
+                            modelo.HORA_CIERRE = reader.GetString(reader.GetOrdinal("HORA_CIERRE"));
                             modelo.MONTO_COBRADO = reader.GetDecimal(reader.GetOrdinal("MONTO_COBRADO"));
                             modelo.ID_MONEDA = reader.GetString(reader.GetOrdinal("ID_MONEDA"));
                             modelo.SGN_MONEDA = reader.GetString(reader.GetOrdinal("SGN_MONEDA"));
                             modelo.ITEM = reader.GetInt32(reader.GetOrdinal("ITEM"));
                             modelo.FLG_REAPERTURADO = reader.GetBoolean(reader.GetOrdinal("FLG_REAPERTURADO"));
                             modelo.NOM_MONEDA = reader.GetString(reader.GetOrdinal("NOM_MONEDA"));
+                            modelo.FLG_CIERRE_DIFERIDO = reader.GetBoolean(reader.GetOrdinal("FLG_CIERRE_DIFERIDO"));
                         }
                     }
                 }
@@ -128,6 +130,7 @@ namespace CapaDao
                 cmd.Parameters.Add("@ITEM", SqlDbType.Int).Value = oModelo.ITEM == 0 ? (object)DBNull.Value : oModelo.ITEM;
                 cmd.Parameters.Add("@FECHA_CIERRE", SqlDbType.DateTime).Value = string.IsNullOrEmpty(oModelo.FECHA_CIERRE) ? (object)DBNull.Value : oModelo.FECHA_CIERRE;
                 cmd.Parameters.Add("@FLG_REAPERTURADO", SqlDbType.Bit).Value = oModelo.FLG_REAPERTURADO;
+                cmd.Parameters.Add("@FLG_CIERRE_DIFERIDO", SqlDbType.Bit).Value = oModelo.FLG_CIERRE_DIFERIDO;
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader != null)
                 {

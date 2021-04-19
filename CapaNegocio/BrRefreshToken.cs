@@ -9,6 +9,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace CapaNegocio
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class BrRefreshToken
     {
         DaoRefreshToken _dao = null;

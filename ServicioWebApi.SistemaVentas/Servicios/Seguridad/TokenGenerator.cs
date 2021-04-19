@@ -28,11 +28,11 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
         public TokenModel GetTokens(UsuarioModel modelo)
         {
             //Generación de jwt
-            TokenGenerator tokenGenerator = new TokenGenerator(_configuracion);
-            string token = tokenGenerator.GenerateJWT(modelo);
+            string token = GenerateJWT(modelo);
 
             //Generacíon del refreshToken
-            string refreshToken = tokenGenerator.GenerateRefreshToken();
+            string refreshToken = GenerateRefreshToken();
+
             //Serializamos los claims
             string jsonClaims = JsonSerializer.Serialize(new
             {
@@ -88,8 +88,10 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
                 new Claim("FullName", usuario.NomUsuario),
                 new Claim("IdSucursal", usuario.IdSucursal),
                 new Claim("NomSucursal", usuario.NomSucursal),
-                new Claim("FlgCtrlTotal", usuario.FlgCtrlTotal.ToString())
+                new Claim("FlgCtrlTotal", usuario.FlgCtrlTotal.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario)
             };
+
             var _Payload = new JwtPayload(
                     issuer: issuerToken,
                     audience: audienceToken,

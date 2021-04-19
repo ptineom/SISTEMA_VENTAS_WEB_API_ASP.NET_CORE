@@ -1,2 +1,7 @@
 ﻿jwt:
 1.- nugget Microsoft.AspNetCore.Authentication.JwtBearer
+
+Signalr:
+//1.- Agregamos un middlware para poder hacer uso del token_access en signalr
+1.- Se agregó una opción mas en la configuración del jwt en el startup(JwtBearerEvents) para que las llamadas de signalr se envie con el token y con esto noa horramos en crear un middlware
+2.- Instalamos en el cliente signalr "npm install @microsoft/signalr"

@@ -155,7 +155,7 @@ namespace CapaNegocio
         public ResultadoOperacion GetData(string idSucursal, string idUsuario,
             ref List<MONEDA> listaMonedas, ref List<CAJA> listaCajas)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
@@ -175,7 +175,7 @@ namespace CapaNegocio
 
         public ResultadoOperacion GetAllByFilters(string idSucursal,string idCaja, string idUsuario, string fecIni, string fecFin)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
@@ -195,7 +195,7 @@ namespace CapaNegocio
 
         public ResultadoOperacion GetDataQuerys(string idSucursal, ref List<USUARIO> listaUsuario, ref List<CAJA> listaCaja)
         {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            using (SqlConnection con = new SqlConnection(_conexion.getConexion))
             {
                 try
                 {
@@ -216,43 +216,43 @@ namespace CapaNegocio
         #endregion
 
         #region Consultas y reportes
-        public ResultadoOperacion combosReportesCajaArqueo(string idSucursal)
-        {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
-            {
-                try
-                {
-                    con.Open();
-                    COMBOS_REPORTE_CAJA_ARQUEO modelo = _dao.combosReportesCajaArqueo(con, idSucursal);
-                    _resultado.SetResultado(true, modelo);
-                }
-                catch (Exception ex)
-                {
-                    Elog.save(this, ex);
-                    _resultado.SetResultado(false, ex.Message);
-                }
-            }
-            return _resultado;
-        }
+        // public ResultadoOperacion combosReportesCajaArqueo(string idSucursal)
+        // {
+            // using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            // {
+                // try
+                // {
+                    // con.Open();
+                    // COMBOS_REPORTE_CAJA_ARQUEO modelo = _dao.combosReportesCajaArqueo(con, idSucursal);
+                    // _resultado.SetResultado(true, modelo);
+                // }
+                // catch (Exception ex)
+                // {
+                    // Elog.save(this, ex);
+                    // _resultado.SetResultado(false, ex.Message);
+                // }
+            // }
+            // return _resultado;
+        // }
 
-        public ResultadoOperacion listaArqueoCaja(string idSucursal, string fecIni, string fecFin, string idUsuario, string idCaja)
-        {
-            using (SqlConnection con = new SqlConnection(Conexion.sConexion))
-            {
-                try
-                {
-                    con.Open();
-                    var lista = _dao.listaArqueoCaja(con, idSucursal, fecIni, fecFin, idUsuario, idCaja);
-                    _resultado.SetResultado(true, lista);
-                }
-                catch (Exception ex)
-                {
-                    Elog.save(this, ex);
-                    _resultado.SetResultado(false, ex.Message);
-                }
-            }
-            return _resultado;
-        }
+        // public ResultadoOperacion listaArqueoCaja(string idSucursal, string fecIni, string fecFin, string idUsuario, string idCaja)
+        // {
+            // using (SqlConnection con = new SqlConnection(Conexion.sConexion))
+            // {
+                // try
+                // {
+                    // con.Open();
+                    // var lista = _dao.listaArqueoCaja(con, idSucursal, fecIni, fecFin, idUsuario, idCaja);
+                    // _resultado.SetResultado(true, lista);
+                // }
+                // catch (Exception ex)
+                // {
+                    // Elog.save(this, ex);
+                    // _resultado.SetResultado(false, ex.Message);
+                // }
+            // }
+            // return _resultado;
+        // }
         #endregion
     }
 }

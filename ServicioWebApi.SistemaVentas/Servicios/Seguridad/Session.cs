@@ -45,7 +45,8 @@ namespace ServicioWebApi.SistemaVentas.Servicios.Seguridad
                         NomUsuario = claims.FirstOrDefault(x => x.Type == "FullName").Value,
                         NomRol = claims.FirstOrDefault(x => x.Type == ClaimTypes.Role).Value,
                         IdSucursal = claims.FirstOrDefault(x => x.Type == "IdSucursal").Value,
-                        FlgCtrlTotal = Convert.ToBoolean(claims.FirstOrDefault( x => x.Type == "FlgCtrlTotal").Value)
+                        FlgCtrlTotal = Convert.ToBoolean(claims.FirstOrDefault( x => x.Type == "FlgCtrlTotal").Value),
+                        NameIdentifier = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value
                     };
                 }
             }
