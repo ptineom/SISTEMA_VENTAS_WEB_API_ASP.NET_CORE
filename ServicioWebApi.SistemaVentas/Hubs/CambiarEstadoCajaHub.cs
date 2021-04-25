@@ -17,6 +17,7 @@ namespace ServicioWebApi.SistemaVentas.Hubs
         public override Task OnConnectedAsync()
         {
             string name = Context.User.Identity.Name;
+            string xx = Context.UserIdentifier;
             return base.OnConnectedAsync();
         }
     }
